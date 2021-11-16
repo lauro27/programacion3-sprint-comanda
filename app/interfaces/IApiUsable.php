@@ -1,9 +1,9 @@
 <?php
 interface IApiUsable
 {
-	public function TraerUno($request, $response, $args);
-	public function TraerTodos($request, $response, $args);
-	public function CargarUno($request, $response, $args);
-	public function BorrarUno($request, $response, $args);
-	public function ModificarUno($request, $response, $args);
+	public function TraerUno($request, $handler);
+	public function TraerTodos($request, $handler);
+	public function CargarUno($request, $handler);
+	public function BorrarUno($request, $handler);
+	public function ModificarUno($request, $handler);
 }

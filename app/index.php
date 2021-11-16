@@ -13,7 +13,7 @@ use Slim\Routing\RouteContext;
 require __DIR__ . '/../vendor/autoload.php';
 
 require_once './db/AccesoDatos.php';
-// require_once './middlewares/Logger.php';
+require_once './middlewares/logger.php';
 
 require_once './controllers/UsuarioController.php';
 
@@ -31,6 +31,20 @@ $app->addErrorMiddleware(true, true, true);
 $app->addBodyParsingMiddleware();
 
 // Routes
+
+$app->post('/login[/]', \UsuarioController::class . ':Login'/*function(Request $request, Response $response){
+  $param = $request->getParsedBody();
+
+  $nombre = $param['usuario'];
+  $pass = $param['clave'];
+
+  $usuario = new Usuario();
+  $usuario->usuario = $nombre;
+  $usuario->clave = password_hash($pass, PASSWORD_DEFAULT);
+
+  
+});*/
+
 $app->group('/usuarios', function (RouteCollectorProxy $group) {
     $group->get('[/]', \UsuarioController::class . ':TraerTodos');
     $group->get('/{usuario}', \UsuarioController::class . ':TraerUno');
@@ -42,5 +56,7 @@ $app->get('[/]', function (Request $request, Response $response) {
     return $response;
 
 });
+
+
 
 $app->run();
