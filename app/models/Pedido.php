@@ -1,5 +1,7 @@
 <?php
 
+use Psr7Middlewares\Middleware\AccessLog;
+
 require_once './models/Producto.php';
 
 class Pedido
@@ -10,6 +12,7 @@ class Pedido
     public $dir_foto = NULL;
     public $array_producto = array();
     public $estado = 'preparando';
+    public $estimado;
 
     public function crearPedido()
     {
@@ -96,5 +99,15 @@ class Pedido
     public static function validarEstado($estado)
     {
         return ($estado == 'preparando' || $estado == 'listo');
+    }
+
+    public function actualizarEstimado()
+    {
+        $objAccesoDato = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDato->prepararConsulta("UPDATE pedidos set estimado = :estimado where id = :id");
+        $consulta->bindValue(":estimado", $this->estimado, PDO::PARAM_INT);
+        $consulta->bindValue(':id', $this->id, PDO::PARAM_INT);
+        $consulta->execute();
+
     }
 }

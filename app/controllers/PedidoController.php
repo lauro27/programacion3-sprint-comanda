@@ -4,16 +4,20 @@ use Slim\Psr7\Response;
 
 require_once './models/Pedido.php';
 require_once './interfaces/IApiUsable.php';
-require_once './models/AuthJWT.php';
 
 class PedidoController extends Pedido implements IApiUsable
 {
     public function CargarUno($request, $handler)
     {
+        $requestHeader = $request->getHeaderLine('Authorization');
+        $elToken = trim(explode('Bearer', $requestHeader)[1]);
+
         $parametros = $request->getParsedBody();
-        $payload = $request->getAttribute("payload")["Payload"];
+        $payload = AutentificadorJWT::ObtenerData($elToken);
         $id = $payload->id;
         $cliente = $parametros['cliente'];
+        $idMesa = $parametros['idMesa'];
+
         
         // Creamos el pedido
         $ped = new Pedido();
@@ -65,12 +69,19 @@ class PedidoController extends Pedido implements IApiUsable
 
         $estado = $parametros['estado'];
         $ped = Pedido::obtenerPedido($parametros['id']);
-        $ped->cambiarEstado($estado);
-
-        $payload = json_encode(array("mensaje" => "Usuario modificado con exito"));
 
         $response = new Response();
-        $response->getBody()->write($payload);
+
+        if(Pedido::validarEstado($estado)){
+            $msg = $ped->cambiarEstado($estado);
+            $payload = json_encode(array("mensaje" => "$msg"));
+            $response->getBody()->write($payload);
+        }
+        else{
+            $response->withStatus(400, "Estado no valido");    
+        }
+
+        
         return $response
           ->withHeader('Content-Type', 'application/json');
     }
@@ -93,7 +104,15 @@ class PedidoController extends Pedido implements IApiUsable
     public function sumarProducto($request, $handler)
     {
         $parametros = $request->getParsedBody();
+        $producto = $parametros['producto'];
+        $id = $parametros['id'];
 
+        $ped = Pedido::obtenerPedido($id);
+        $payload = $ped->agregarProducto($producto);
         
+        $response = new Response();
+        $response->getBody()->write($payload);
+        return $response
+          ->withHeader('Content-Type', 'application/json');
     }
 }

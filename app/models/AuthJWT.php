@@ -7,16 +7,14 @@ class AutentificadorJWT
     private static $claveSecreta = 'theKeyIsTheFriendsWeMadeAlongTheWay77331919';
     private static $tipoEncriptacion = ['HS256'];
 
-    public static function CrearToken($id, $usuario, $rol)
+    public static function CrearToken($datos)
     {
         $ahora = time();
         $payload = array(
             'iat' => $ahora,
             'exp' => $ahora + (60000),
             'aud' => self::Aud(),
-            'usuario' => $usuario,
-            'rol' => $rol,
-            'id '=> $id,
+            'payload' => $datos,
             'app' => "La comanda - Lamas"
         );
         return JWT::encode($payload, self::$claveSecreta);

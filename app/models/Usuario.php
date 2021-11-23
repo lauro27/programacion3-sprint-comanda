@@ -67,15 +67,4 @@ class Usuario
             $rol == 'cervecero'|| $rol == 'cocinero' || $rol == 'mozo');
     }
 
-    public static function loginUsuario($user, $pass){
-        $objAccesoDatos = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDatos->prepararConsulta("SELECT id, usuario, clave FROM usuarios WHERE usuario = :usuario and clave = :clave");
-        $consulta->bindValue(':usuario', $user, PDO::PARAM_STR);
-        $consulta->bindValue(':clave', $pass);
-        $consulta->execute();
-
-        $payload = $consulta->fetchObject('Usuario');
-
-        return $payload;
-    }
 }
