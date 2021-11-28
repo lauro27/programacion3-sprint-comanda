@@ -90,13 +90,4 @@ class UsuarioController extends Usuario implements IApiUsable
         return $response
           ->withHeader('Content-Type', 'application/json');
     }
-
-    public function Login ($request, $handler){
-        $parametros = $request->getParsedBody();
-        $usuario = $parametros['usuario'];
-        $clave = password_hash($parametros['clave'], PASSWORD_DEFAULT);
-
-
-
-    }
 }
