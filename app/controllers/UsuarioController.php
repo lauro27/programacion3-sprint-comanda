@@ -13,11 +13,12 @@ class UsuarioController extends Usuario implements IApiUsable
 
         $usuario = $parametros['usuario'];
         $clave = $parametros['clave'];
-
+        $rol = $parametros['rol'];
         // Creamos el usuario
         $usr = new Usuario();
         $usr->usuario = $usuario;
         $usr->clave = $clave;
+        $usr->rol = $rol;
         $usr->crearUsuario();
 
         $payload = json_encode(array("mensaje" => "Usuario creado con exito"));

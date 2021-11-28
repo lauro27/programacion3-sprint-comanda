@@ -50,4 +50,13 @@ class Producto{
         $consulta->bindValue(':id', $producto, PDO::PARAM_INT);
         $consulta->execute();
     }
+
+    public static function obtenerSector($sector){
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("SELECT id, nombre, precio, sector FROM productos WHERE sector = :sector");
+        $consulta->bindValue(':sector', $sector);
+        $consulta->execute();
+
+        return $consulta->fetchAll(PDO::FETCH_CLASS, 'Producto');
+    }
 }

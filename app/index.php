@@ -32,31 +32,35 @@ $app->addBodyParsingMiddleware();
 
 // Routes
 
-$app->post('/login[/]', \UsuarioController::class . ':Login'/*function(Request $request, Response $response){
-  $param = $request->getParsedBody();
-
-  $nombre = $param['usuario'];
-  $pass = $param['clave'];
-
-  $usuario = new Usuario();
-  $usuario->usuario = $nombre;
-  $usuario->clave = password_hash($pass, PASSWORD_DEFAULT);
-
-  
-});*/
+$app->post('/login[/]', \LoginController::class . ':IniciarSesion');
 
 $app->group('/usuarios', function (RouteCollectorProxy $group) {
     $group->get('[/]', \UsuarioController::class . ':TraerTodos');
     $group->get('/{usuario}', \UsuarioController::class . ':TraerUno');
     $group->post('[/]', \UsuarioController::class . ':CargarUno');
-  });
+});//->add(\AuthMW::class . ':LoginSocio');
 
-$app->get('[/]', function (Request $request, Response $response) {    
-    $response->getBody()->write("Slim Framework 4 PHP");
-    return $response;
-
+$app->group('/productos', function (RouteCollectorProxy $group){
+  $group->get('[/]', \ProductoController::class . ':TraerTodos');
+    $group->get('/{producto}', \ProductoController::class . ':TraerUno');
+    $group->post('[/]', \ProductoController::class . ':CargarUno')->add(\AuthMW::class . ':LoginSocio');
 });
 
+$app->group('/mesas', function (RouteCollectorProxy $group){
+  $group->get('[/]', \MesaController::class . ':TraerTodos');
+    $group->get('/{mesa}', \MesaController::class . ':TraerUno');
+    $group->post('[/]', \MesaController::class . ':CargarUno');
+})->add(\AuthMW::class . ':Login');
 
+$app->get('[/]', function (Request $request, Response $response) {    
+    $response->getBody()->write("La comanda - Lamas Juan Pablo");
+    return $response;
+});
 
+$app->group('/pedidos', function (RouteCollectorProxy $group){
+  $group->get('[/]', \PedidoController::class . ':TraerTodos');
+    $group->get('/{pedido}', \PedidoController::class . ':TraerUno');
+    $group->post('[/]', \PedidoController::class . ':CargarUno')->add(\AuthMW::class . ':LoginSocio');
+    $group->put('[/]', \PedidoController::class . 'sumarProducto')->add(\LoginController::class . ':LoginSocioMozo');
+});
 $app->run();
