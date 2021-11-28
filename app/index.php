@@ -14,6 +14,7 @@ require __DIR__ . '/../vendor/autoload.php';
 
 require_once './db/AccesoDatos.php';
 require_once './middlewares/Logger.php';
+require_once './middlewares/AuthMW.php';
 
 require_once './controllers/UsuarioController.php';
 require_once './controllers/LoginController.php';
@@ -57,15 +58,17 @@ $app->group('/mesas', function (RouteCollectorProxy $group){
     $group->post('[/]', \MesaController::class . ':CargarUno');
 })->add(\AuthMW::class . ':Login');
 
-$app->get('[/]', function (Request $request, Response $response) {    
-    $response->getBody()->write("La comanda - Lamas Juan Pablo");
-    return $response;
-});
-
 $app->group('/pedidos', function (RouteCollectorProxy $group){
   $group->get('[/]', \PedidoController::class . ':TraerTodos');
     $group->get('/{pedido}', \PedidoController::class . ':TraerUno');
     $group->post('[/]', \PedidoController::class . ':CargarUno')->add(\AuthMW::class . ':LoginSocio');
     $group->put('[/]', \PedidoController::class . 'sumarProducto')->add(\LoginController::class . ':LoginSocioMozo');
 });
+
+
+$app->get('[/]', function (Request $request, Response $response) {    
+  $response->getBody()->write("La comanda - Lamas Juan Pablo");
+  return $response;
+});
+
 $app->run();

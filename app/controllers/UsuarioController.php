@@ -19,14 +19,21 @@ class UsuarioController extends Usuario implements IApiUsable
         $usr->usuario = $usuario;
         $usr->clave = $clave;
         $usr->rol = $rol;
-        $usr->crearUsuario();
-
-        $payload = json_encode(array("mensaje" => "Usuario creado con exito"));
-
+        if(Usuario::validarRol($usr->rol)){
+          $usr->crearUsuario();
+          $payload = json_encode(array("mensaje" => "Usuario creado con exito"));
+          $status = 200;
+        }
+        else{
+          $payload = json_encode(array("mensaje" => "Error: rol invalido"));
+          $status = 400;
+        }
+        
         $response = new Response();
         $response->getBody()->write($payload);
         return $response
-          ->withHeader('Content-Type', 'application/json');
+          ->withHeader('Content-Type', 'application/json')
+          ->withStatus($status);
     }
 
     public function TraerUno($request, $handler)
