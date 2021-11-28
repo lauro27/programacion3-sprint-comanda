@@ -29,9 +29,7 @@ class LoginController{
         else{
             $datos = json_encode(array("usuario" => $value->usuario, "id" => $value->id, "rol" => $value->rol));
             $token = AutentificadorJWT::CrearToken($datos);
-            $rol = "";
-            if($value->isAdmin == 1){ $rol = "Admin"; }
-            else{ $rol = "Usuario"; }
+            $rol = $value->rol;
             $response->getBody()->write($token);
             return $response->withStatus(200, 'OK ' . $rol);
         }

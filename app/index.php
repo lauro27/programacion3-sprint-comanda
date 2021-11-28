@@ -13,9 +13,14 @@ use Slim\Routing\RouteContext;
 require __DIR__ . '/../vendor/autoload.php';
 
 require_once './db/AccesoDatos.php';
-require_once './middlewares/logger.php';
+require_once './middlewares/Logger.php';
 
 require_once './controllers/UsuarioController.php';
+require_once './controllers/LoginController.php';
+require_once './controllers/MesaController.php';
+require_once './controllers/PedidoController.php';
+require_once './controllers/ProductoController.php';
+
 
 // Load ENV
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
@@ -38,7 +43,7 @@ $app->group('/usuarios', function (RouteCollectorProxy $group) {
     $group->get('[/]', \UsuarioController::class . ':TraerTodos');
     $group->get('/{usuario}', \UsuarioController::class . ':TraerUno');
     $group->post('[/]', \UsuarioController::class . ':CargarUno');
-});//->add(\AuthMW::class . ':LoginSocio');
+})->add(\AuthMW::class . ':LoginSocio');
 
 $app->group('/productos', function (RouteCollectorProxy $group){
   $group->get('[/]', \ProductoController::class . ':TraerTodos');
