@@ -1,6 +1,7 @@
 <?php
 
 use Psr7Middlewares\Middleware\AccessLog;
+use Symfony\Component\Console\Descriptor\JsonDescriptor;
 
 require_once './models/Producto.php';
 
@@ -10,19 +11,26 @@ class Pedido
     public $id_usuario;
     public $nombre_cliente;
     public $dir_foto = NULL;
-    public $array_producto = array();
+    public $id_productos = array();
     public $estado = 'preparando';
-    public $estimado;
+    public $estimado; // en minutos
+    public $hora_inicio;
+    public $hora_entrega = NULL;
 
     public function crearPedido()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDatos->prepararConsulta("INSERT INTO pedidos (id_usuario, nombre_cliente, dir_foto, array_producto) VALUES (:id_usuario, :nombre_cliente, :dir_foto, :array)");
+        $consulta = $objAccesoDatos->prepararConsulta("INSERT INTO pedidos (id_usuario, nombre_cliente, dir_foto, id_productos, estado, hora_inicio)
+            VALUES (:id_usuario, :nombre_cliente, :dir_foto, :array, :estado, :hora_inicio)");
         
         $consulta->bindValue(':id_usuario', $this->id_usuario, PDO::PARAM_INT);
         $consulta->bindValue(':nombre_cliente', $this->nombre_cliente);
         $consulta->bindValue(':dir_foto', $this->dir_foto);
         $consulta->bindValue(':array', '[]');
+        $consulta->bindValue(':estado', $this->estado);
+
+        $this->hora_inicio = date('Y-m-d H:i:s');
+        $consulta->bindValue(':hora_inicio', $this->hora_inicio);
 
         $consulta->execute();
 
@@ -35,7 +43,7 @@ class Pedido
             if(!isset($prod->nombre)){
                 throw new Exception('Producto no encontrado');
             }
-            array_push($this->array_producto, $prod->id);
+            array_push($this->id_productos, $prod->id);
             $this->modificarPedido();
             $mensaje = "Exito con agregar producto " . $producto;
         }catch(Exception $e){
@@ -62,29 +70,41 @@ class Pedido
     public static function obtenerTodos()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDatos->prepararConsulta("SELECT id, id_usuario, nombre_cliente, dir_foto, array_producto FROM usuarios");
+        $consulta = $objAccesoDatos->prepararConsulta("SELECT id, id_usuario, nombre_cliente, dir_foto, id_productos 
+            FROM pedidos");
+
         $consulta->execute();
 
-        return $consulta->fetchAll(PDO::FETCH_CLASS, 'Producto');
+        $respuesta = $consulta->fetchAll(PDO::FETCH_CLASS, 'Pedido');
+        foreach ($respuesta as $key => $value) {
+            $respuesta[$key]->id_productos = json_decode($respuesta[$key]->id_productos);
+        }
+        return $respuesta;
     }
 
     public static function obtenerPedido($id)
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDatos->prepararConsulta("SELECT id, id_usuario, nombre_cliente, dir_foto, array_producto FROM usuarios WHERE id = :id");
+        $consulta = $objAccesoDatos->prepararConsulta("SELECT id, id_usuario, nombre_cliente, dir_foto, id_productos 
+            FROM pedidos WHERE id = :id");
+
         $consulta->bindValue(':id', $id, PDO::PARAM_INT);
         $consulta->execute();
         $pedido = $consulta->fetchObject('Pedido');
-        $pedido->array_producto = json_decode($pedido->array_producto);
+        $pedido->id_productos = json_decode($pedido->id_productos);
         return $pedido;
     }
 
     public function modificarPedido()
     {
         $objAccesoDato = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDato->prepararConsulta("UPDATE pedidos SET array_producto = :array_producto, estado = :estado WHERE id = :id");
-        $consulta->bindValue(':array_producto', $this->array_producto, PDO::PARAM_STR);
+        $consulta = $objAccesoDato->prepararConsulta("UPDATE pedidos 
+        SET id_productos = :id_productos, estado = :estado, estimado = :estimado, hora_entrega = :hora_entrega WHERE id = :id");
+        json_encode($this->id_productos);
+        $consulta->bindValue(':id_productos', $this->id_productos, PDO::PARAM_STR);
         $consulta->bindValue(':estado', $this->estado);
+        $consulta->bindValue(':estimado', $this->estimado);
+        $consulta->bindValue(':hora_entrega', $this->hora_entrega);
         $consulta->execute();
     }
 
@@ -109,5 +129,20 @@ class Pedido
         $consulta->bindValue(':id', $this->id, PDO::PARAM_INT);
         $consulta->execute();
 
+    }
+
+    public function obtenerPorRol($rol){
+
+        $qMarks = str_repeat('?,', count($this->id_productos) - 1) . '?';
+
+        $objAccesoDato = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDato->prepararConsulta("SELECT * FROM productos where sector = :rol AND id IN($qMarks)");
+        $consulta->bindValue(':id', $this->id, PDO::PARAM_INT);
+        $consulta->bindValue(':rol', $rol);
+        $consulta->execute($this->id_productos);
+        $resultado = $consulta->fetchAll(PDO::FETCH_CLASS, 'Producto');
+        
+        return $resultado
+    
     }
 }

@@ -36,6 +36,8 @@ $app->addErrorMiddleware(true, true, true);
 // Add parse body
 $app->addBodyParsingMiddleware();
 
+$app->addRoutingMiddleware();
+
 // Routes
 
 $app->post('/login[/]', \LoginController::class . ':IniciarSesion');

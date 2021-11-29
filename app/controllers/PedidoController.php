@@ -72,7 +72,7 @@ class PedidoController extends Pedido implements IApiUsable
 
         $response = new Response();
 
-        if(Pedido::validarEstado($estado)){
+        if(Pedido::validarEstado($estado) && $ped->nombre_cliente != NULL){
             $msg = $ped->cambiarEstado($estado);
             $payload = json_encode(array("mensaje" => "$msg"));
             $response->getBody()->write($payload);
@@ -114,5 +114,31 @@ class PedidoController extends Pedido implements IApiUsable
         $response->getBody()->write($payload);
         return $response
           ->withHeader('Content-Type', 'application/json');
+    }
+
+    public function setEstimado($request, $handler)
+    {
+        $header = $request->getHeaderLine("authorization");
+        $token = trim(explode('Bearer', $header)[1]);
+
+        $data = json_decode(AutentificadorJWT::ObtenerData($token));
+
+        $parametros = $request->getParsedBody();
+        $estimado = intval($parametros['estimado']);
+        $ped = Pedido::obtenerPedido(intval($parametros['id']));
+        $prod = $ped->obtenerPorRol($data->rol);
+
+        $response = new Response();
+        if($ped->nombre_cliente != NULL && $ped->estimado < $estimado){
+            $ped->estimado = $estimado;
+            $ped->actualizarEstimado();
+            return $response->withStatus(200);
+        }
+        else{
+            return $response->withStatus(400);    
+        }
+        return $response;
+
+
     }
 }

@@ -7,13 +7,11 @@ use Slim\Psr7\Response;
 class LoginController{
 
     public function IniciarSesion($request, $handler){
-        echo "testing one";
         $arrayParam = $request->getParsedBody();
         $user = $arrayParam['usuario'];
         $pass = $arrayParam['clave'];
 
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
-        echo "testing two";
         $cmp = Usuario::obtenerUsuario($user);
 
         if(password_verify($pass, $cmp->clave)){
