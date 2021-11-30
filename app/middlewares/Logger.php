@@ -16,7 +16,7 @@ class Logger
     {
         $header = $request->getHeaderLine("authorization");
         $token = trim(explode('Bearer', $header)[1]);
-        $payload = AutentificadorJWT::ObtenerData($token);
+        $payload = json_decode(AutentificadorJWT::ObtenerData($token));
         $id = $payload->id;
 
         $response = $handler->handle($request);

@@ -24,7 +24,7 @@ class Usuario
     public static function obtenerTodos()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDatos->prepararConsulta("SELECT id, usuario, clave, rol FROM usuarios");
+        $consulta = $objAccesoDatos->prepararConsulta("SELECT id, usuario, rol FROM usuarios");
         $consulta->execute();
 
         return $consulta->fetchAll(PDO::FETCH_CLASS, 'Usuario');
@@ -33,7 +33,7 @@ class Usuario
     public static function obtenerUsuario($usuario)
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDatos->prepararConsulta("SELECT id, usuario, clave, rol FROM usuarios WHERE usuario = :usuario");
+        $consulta = $objAccesoDatos->prepararConsulta("SELECT * FROM usuarios WHERE usuario = :usuario");
         $consulta->bindValue(':usuario', $usuario, PDO::PARAM_STR);
         $consulta->execute();
 
@@ -63,6 +63,7 @@ class Usuario
     }
 
     public static function validarRol(string $rol){
+        $rol = strtolower($rol);
         return ($rol == 'socio' || $rol == 'bartender'||
             $rol == 'cervecero'|| $rol == 'cocinero' || $rol == 'mozo');
     }

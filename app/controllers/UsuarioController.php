@@ -20,9 +20,16 @@ class UsuarioController extends Usuario implements IApiUsable
         $usr->clave = $clave;
         $usr->rol = $rol;
         if(Usuario::validarRol($usr->rol)){
-          $usr->crearUsuario();
-          $payload = json_encode(array("mensaje" => "Usuario creado con exito"));
-          $status = 200;
+          if($usr->rol != "socio")
+          {
+            $usr->crearUsuario();
+            $payload = json_encode(array("mensaje" => "Usuario creado con exito"));
+            $status = 200;
+          }
+          else{
+            $payload = json_encode(array("mensaje" => "Error: no puede haber mas socios"));
+            $status = 400;
+          }
         }
         else{
           $payload = json_encode(array("mensaje" => "Error: rol invalido"));
@@ -36,7 +43,7 @@ class UsuarioController extends Usuario implements IApiUsable
           ->withStatus($status);
     }
 
-    public function TraerUno($request, $handler)
+    public function TraerUno($request, $handler, $args)
     {
         // Buscamos usuario por nombre
         $parametros = $request->getParsedBody();

@@ -4,7 +4,7 @@ class Mesa
 {
     public $id;
     public $cod_mesa;
-    public $estado;
+    public $estado = 'cerrada';
 
     public function crearMesa()
     {

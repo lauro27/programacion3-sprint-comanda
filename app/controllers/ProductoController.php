@@ -21,7 +21,7 @@ class ProductoController extends Producto implements IApiUsable
         $prod->sector = $sector;
         $prod->crearProducto();
 
-        $payload = json_encode(array("mensaje" => "Producto creado con exito"));
+        $payload = json_encode(array("mensaje" => "Producto $prod->nombre creado con exito"));
 
         $response = new Response();
         $response->getBody()->write($payload);
@@ -29,10 +29,9 @@ class ProductoController extends Producto implements IApiUsable
           ->withHeader('Content-Type', 'application/json');
     }
 
-    public function TraerUno($request, $handler){
+    public function TraerUno($request, $handler, $args){
         // Buscamos producto por nombre
-        $parametros = $request->getParsedBody();
-        $prod = $parametros['nombre'];
+        $prod = $args['nombre'];
         $producto = Producto::obtenerProducto($prod);
         $payload = json_encode($producto);
 
