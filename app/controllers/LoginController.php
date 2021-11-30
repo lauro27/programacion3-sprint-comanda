@@ -1,6 +1,6 @@
 <?php
 require_once './models/Usuario.php';
-require_once './models/AuthJWT.php';
+require_once './utils/AuthJWT.php';
 
 use Slim\Psr7\Response;
 

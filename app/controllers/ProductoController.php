@@ -82,14 +82,9 @@ class ProductoController extends Producto implements IApiUsable
         ->withHeader('Content-Type', 'application/json');
     }
 
-    public function TraerPorSector($request, $handler){
+    public function TraerPorSector($request, $handler, $args){
       $parametros = $request->getParsedBody();
-      $sector = $parametros['rol'];
-      $requestHeader = $request->getHeaderLine('Authorization');
-      $elToken = trim(explode('Bearer', $requestHeader)[1]);
-      
-      $payload = AutentificadorJWT::ObtenerData($elToken);
-      $sector = $payload->rol;
+      $sector = $args['sector'];
       $lista = Producto::obtenerSector($sector);
       
       $payload = json_encode(array("listaProducto" => $lista));

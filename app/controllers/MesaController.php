@@ -11,7 +11,7 @@ class MesaController extends Mesa implements IApiUsable
     {
         $parametros = $request->getParsedBody();
 
-        $cod = $parametros['cod_mesa'];
+        $cod = CsvHandler::GenerarCodigo();
         $est = "cerrada";
 
         // Creamos la mesa

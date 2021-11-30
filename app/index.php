@@ -15,6 +15,8 @@ require __DIR__ . '/../vendor/autoload.php';
 require_once './db/AccesoDatos.php';
 require_once './middlewares/Logger.php';
 require_once './middlewares/AuthMW.php';
+require_once './utils/AuthJWT.php';
+require_once './utils/CsvHandler.php';
 
 require_once './controllers/UsuarioController.php';
 require_once './controllers/LoginController.php';
@@ -51,21 +53,41 @@ $app->group('/usuarios', function (RouteCollectorProxy $group) {
 $app->group('/productos', function (RouteCollectorProxy $group){
   $group->get('[/]', \ProductoController::class . ':TraerTodos');
     $group->get('/{producto}', \ProductoController::class . ':TraerUno');
-    $group->post('[/]', \ProductoController::class . ':CargarUno')->add(\AuthMW::class . ':LoginSocio');
+    $group->post('[/]', \ProductoController::class . ':CargarUno')
+      ->add(\AuthMW::class . ':LoginSocio')
+      ->add(new Logger("Agrega producto"));
 });
 
 $app->group('/mesas', function (RouteCollectorProxy $group){
   $group->get('[/]', \MesaController::class . ':TraerTodos');
-    $group->get('/{mesa}', \MesaController::class . ':TraerUno');
-    $group->post('[/]', \MesaController::class . ':CargarUno');
-})->add(\AuthMW::class . ':Login');
+  $group->get('/{mesa}', \MesaController::class . ':TraerUno')
+    ->add(new Logger("Busca mesa"));
+  $group->post('[/]', \MesaController::class . ':CargarUno')
+    ->add(new Logger("Agrega mesa"));
+})->add(\AuthMW::class . ':LoginSocioMozo');
 
 $app->group('/pedidos', function (RouteCollectorProxy $group){
-  $group->get('[/]', \PedidoController::class . ':TraerTodos');
-    $group->get('/{pedido}', \PedidoController::class . ':TraerUno');
-    $group->post('[/]', \PedidoController::class . ':CargarUno')->add(\AuthMW::class . ':LoginSocio');
-    $group->put('[/]', \PedidoController::class . 'sumarProducto')->add(\LoginController::class . ':LoginSocioMozo');
+  $group->get('[/]', \PedidoController::class . ':TraerTodos')
+    ->add(new Logger("Busca todos los pedidos"));
+  $group->get('/{pedido}', \PedidoController::class . ':TraerUno')
+    ->add(new Logger("Busca pedido"));
+  $group->post('[/]', \PedidoController::class . ':CargarUno')
+    ->add(\AuthMW::class . ':LoginSocioMozo')
+    ->add(new Logger("Nuevo pedido"));
+  $group->put('[/]', \PedidoController::class . 'sumarProducto')
+    ->add(\AuthMW::class . ':LoginSocioMozo')
+    ->add(new Logger("Suma producto a pedido"));
+  $group->post('/csvProductos[/]', \PedidoController:: class . ':sumarProductosCsv')
+    ->add(\AuthMW::class . ':LoginSocioMozo')
+    ->add(new Logger('Sumar productos a pedido por csv'));
+  $group->post('/estado', \PedidoController::class . ':ModificarUno')
+    ->add(\AuthMW::class . ':LoginSocioMozo')
+    ->add(new Logger('Cambiar estado de pedido'));
+  $group->get('/sector/{cod_pedido}/{sector}', \PedidoController::class . ":TraerProductosPedidoPorSector")
+    ->add(\AuthMW::class . ':Login')
+    ->add(new Logger('Verificar productos de pedido'));
 });
+  
 
 
 $app->get('[/]', function (Request $request, Response $response) {    

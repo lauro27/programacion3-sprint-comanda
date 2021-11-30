@@ -16,6 +16,8 @@ class Pedido
     public $estimado; // en minutos
     public $hora_inicio;
     public $hora_entrega = NULL;
+    public $cod_mesa;//
+    public $cod_pedido;//
 
     public function crearPedido()
     {
@@ -95,6 +97,18 @@ class Pedido
         return $pedido;
     }
 
+    public static function obtenerPorCodigo($cod)
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("SELECT * FROM pedidos WHERE cod_pedido = :cod");
+
+        $consulta->bindValue(':cod', $cod);
+        $consulta->execute();
+        $pedido = $consulta->fetchObject('Pedido');
+        $pedido->id_productos = json_decode($pedido->id_productos);
+        return $pedido;
+    }
+
     public function modificarPedido()
     {
         $objAccesoDato = AccesoDatos::obtenerInstancia();
@@ -131,18 +145,46 @@ class Pedido
 
     }
 
-    public function obtenerPorRol($rol){
-
-        $qMarks = str_repeat('?,', count($this->id_productos) - 1) . '?';
+    public function obtenerProductosPorSector($sector){
+        $resultado = array();
 
         $objAccesoDato = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDato->prepararConsulta("SELECT * FROM productos where sector = :rol AND id IN($qMarks)");
-        $consulta->bindValue(':id', $this->id, PDO::PARAM_INT);
-        $consulta->bindValue(':rol', $rol);
-        $consulta->execute($this->id_productos);
-        $resultado = $consulta->fetchAll(PDO::FETCH_CLASS, 'Producto');
+        $consulta = $objAccesoDato->prepararConsulta("SELECT * FROM productos where sector = :sector AND id = :id");
+        $consulta->bindValue(':sector', $sector);
+        foreach ($this->id_productos as $key => $value) {
+            $consulta->bindValue(':id', $value, PDO::PARAM_INT);
+            $consulta->execute();
+            $temp = $consulta->fetchObject('Producto');
+            if(isset($temp->nombre))
+            {
+                array_push($resultado, $temp);
+            }
+                    
+        }
         
-        return $resultado
+        return $resultado;
     
+    }
+
+    public static function ObtenerRolAsignado($sector)
+    {
+        $rol = "";
+        switch ($sector) {
+            case 'cervezas':
+                $rol = "cervecero";
+                break;
+            case 'vinos':
+                $rol = "bartender";
+                break;
+            case 'cocina':
+                $rol = "cocinero";
+                break;
+            case 'candy':
+                $rol = "cocinero";
+                break; 
+            default:
+                $rol = "mozo";
+                break;
+        }
     }
 }

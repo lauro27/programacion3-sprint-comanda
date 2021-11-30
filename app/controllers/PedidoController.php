@@ -126,10 +126,10 @@ class PedidoController extends Pedido implements IApiUsable
         $parametros = $request->getParsedBody();
         $estimado = intval($parametros['estimado']);
         $ped = Pedido::obtenerPedido(intval($parametros['id']));
-        $prod = $ped->obtenerPorRol($data->rol);
+        $prod = $ped->obtenerProductosPorRol($data->rol);
 
         $response = new Response();
-        if($ped->nombre_cliente != NULL && $ped->estimado < $estimado){
+        if($ped->nombre_cliente != NULL && $ped->estimado < $estimado && count($prod) > 0){
             $ped->estimado = $estimado;
             $ped->actualizarEstimado();
             return $response->withStatus(200);
@@ -138,7 +138,28 @@ class PedidoController extends Pedido implements IApiUsable
             return $response->withStatus(400);    
         }
         return $response;
+    }
 
+    public function TraerProductosPedidoPorSector($request, $handler, $args)
+    {
+        $response = new Response();
+        $sector = $args['sector'];
+        if(!Producto::validarSector($sector)){
+            return $response->withStatus(400, "sector invalido");
+        }
+        $pedido = $args['cod_pedido'];
+
+        $ped = Pedido::obtenerPorCodigo($pedido);
+        if($pedido)
+        {
+            $productos = $ped->obtenerProductosPorSector($sector);
+            $response->getBody()->write(json_encode($productos));
+
+        }
+        else{
+            return $response->withStatus(404, "no se encuentra pedido");
+        }
+        return $response->withHeader('Content-Type', 'application/json');;
 
     }
 }

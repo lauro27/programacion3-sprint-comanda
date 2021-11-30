@@ -59,4 +59,10 @@ class Producto{
 
         return $consulta->fetchAll(PDO::FETCH_CLASS, 'Producto');
     }
+
+
+    public static function validarSector($sector){
+        return ($sector == "candy" || $sector == "vinos" || 
+            $sector == "cervezas" || $sector == "cocina");
+    }
 }
