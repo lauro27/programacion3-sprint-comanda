@@ -221,6 +221,15 @@ class Pedido
     
     }
 
+    public static function ObtenerMesaMasUsada(){
+        $objAccesoDato = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDato->prepararConsulta("SELECT cod_mesa, count(*) FROM pedidos GROUP BY cod_mesa limit 1");
+        $consulta->execute();
+
+        $resultado = $consulta->fetch(PDO::FETCH_ASSOC);
+        return $resultado['cod_mesa'];
+    }
+
     public static function ObtenerRolAsignado($sector)
     {
         $rol = "";

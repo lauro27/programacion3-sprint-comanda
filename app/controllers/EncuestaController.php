@@ -1,19 +1,21 @@
 <?php
 
+<?php
+
 use Slim\Psr7\Request;
 use Slim\Psr7\Response;
 
-require_once './models/Mesa.php';
+require_once './models/Encuesta.php';
 require_once './interfaces/IApiUsable.php';
 
-class MesaController extends Mesa implements IApiUsable
+class EncuestaController extends Encuesta
 {
     public function CargarUno($request, $handler)
     {
-        $cod = CsvHandler::GenerarCodigo();
-        $est = "cerrada";
-
-        // Creamos la mesa
+        $parametros = $request->getParsedBody();
+        
+        $cod = $parametros['codigo'];
+        
         $mesa = new Mesa();
         $mesa->cod_mesa = $cod;
         $mesa->estado = $est;
@@ -94,13 +96,8 @@ class MesaController extends Mesa implements IApiUsable
         return $response
           ->withHeader('Content-Type', 'application/json');
     }
-
-    public static function MejorMesa($request, $handler)
-    {
-      $payload = Pedido::ObtenerMesaMasUsada();
-      $response = new Response();
-      $response->getBody()->write($payload);
-      return $response
-          ->withHeader('Content-Type', 'application/json');
-    }
 }
+
+
+
+?>

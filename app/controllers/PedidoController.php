@@ -248,7 +248,6 @@ class PedidoController extends Pedido implements IApiUsable
 
             //mesa pagando
             $mesa = Mesa::obtenerMesa($pedido->cod_mesa);
-            var_dump($mesa);
             $mesa->estado = 'pagando';
             $mesa->modificarMesa();
         }

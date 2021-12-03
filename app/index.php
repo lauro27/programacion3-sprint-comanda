@@ -68,6 +68,9 @@ $app->group('/mesas', function (RouteCollectorProxy $group){
     ->add(new Logger("Agrega mesa"));
   $group->post('/estado', \MesaController::class . ":ModificarUno")
     ->add(new Logger("modificado estado de mesa"));
+  $group->get('/mejor/', \MesaController::class . ":MejorMesa")
+    ->add(\AuthMW::class . ':LoginSocio')
+    ->add(new Logger("Buscando mejor mesa"));
 })->add(\AuthMW::class . ':LoginSocioMozo');
 
 $app->group('/pedidos', function (RouteCollectorProxy $group){
