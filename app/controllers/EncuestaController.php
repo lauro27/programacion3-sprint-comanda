@@ -1,7 +1,5 @@
 <?php
 
-<?php
-
 use Slim\Psr7\Request;
 use Slim\Psr7\Response;
 
@@ -12,18 +10,35 @@ class EncuestaController extends Encuesta
 {
     public function CargarUno($request, $handler)
     {
-        $parametros = $request->getParsedBody();
+        $parametros = $request->getQueryParams();
         
-        $cod = $parametros['codigo'];
-        
-        $mesa = new Mesa();
-        $mesa->cod_mesa = $cod;
-        $mesa->estado = $est;
-        $mesa->crearMesa();
-
-        $payload = json_encode(array("mensaje" => "Mesa $mesa->cod_mesa creada con exito"));
-
         $response = new Response();
+
+        $cod = $parametros['codigo'];
+        $rMozo = $parametros['mozo'];
+        $rResta = $parametros['restaurante'];
+        $rCocina = $parametros['cocinero'];
+        $rMesa = $parametros['mesa'];
+        
+        $pedido = Pedido::obtenerPorCodigo($cod);
+
+        if(!$pedido->estado == "listo")
+        {
+          return $response->withStatus(400, "Pedido no valido");
+        }
+        
+        $encuesta = new Encuesta();
+        $encuesta->cod_ped = $cod;
+        $encuesta->rate_mozo = intval($rMozo);
+        $encuesta->rate_restaurante = intval($rMozo);
+        $encuesta->rate_cocinero = intval($rCocina);
+        $encuesta->rate_mesa = intval($rMesa);
+        
+        $thisid = $encuesta->crearencuesta();
+
+        $payload = json_encode(array("mensaje" => "Reseña $thisid para pedido $cod creada."));
+
+        
         $response->getBody()->write($payload);
         return $response
           ->withHeader('Content-Type', 'application/json');
@@ -31,15 +46,23 @@ class EncuestaController extends Encuesta
 
     public function TraerUno($request, $handler, $args)
     {
-        // Buscamos Mesa por codigo
-        $m = $args['codigo'];
-        $mesa = Mesa::obtenerMesa($m);
-        $payload = json_encode($mesa);
+      // Buscamos Mesa por codigo
+      $id = $args['id'];
+      $encuesta = Encuesta::obtenerEncuesta($id);
+      
+      $response = new Response();
+      
+      if($encuesta)
+      {
+        $payload = json_encode($encuesta);
+        $response->getBody()->write($payload);  
+      }
+      else{
+        $response->withStatus(400);
+      }
 
-        $response = new Response();
-        $response->getBody()->write($payload);
-        return $response
-          ->withHeader('Content-Type', 'application/json');
+      return $response
+        ->withHeader('Content-Type', 'application/json');
     }
 
     public function TraerTodos($request, $handler)
@@ -53,43 +76,10 @@ class EncuestaController extends Encuesta
           ->withHeader('Content-Type', 'application/json');
     }
     
-    public function ModificarUno($request, $handler)
+    public function TraerMejores($request, $handler)
     {
-        $header = $request->getHeaderLine("authorization");
-        $token = trim(explode('Bearer', $header)[1]);
-        
-        $data = json_decode(AutentificadorJWT::ObtenerData($token));
-
-        $parametros = $request->getParsedBody();
-        
-        $cod = $parametros['codigo'];
-        $m = Mesa::obtenerMesa($cod);
-        $e = $parametros['estado'];
-
-        $response = new Response();
-
-        if(!Mesa::validarEstado($e)){ return $response->withStatus(400, "estado no valido"); }
-        $m->estado = $e;
-        if($e == "cerrada" && $data->rol != 'socio'){ 
-          return $response->withStatus(403, "solo un socio puede cerrar una mesa");
-        }
-        $m->modificarMesa();
-        
-        $payload = json_encode(array("mensaje" => "Mesa modificada con exito"));
-
-        $response->getBody()->write($payload);
-        return $response
-          ->withHeader('Content-Type', 'application/json');
-    }
-
-    public function BorrarUno($request, $handler)
-    {
-        $parametros = $request->getParsedBody();
-
-        $MesaId = $parametros['idMesa'];
-        Mesa::borrarMesa($MesaId);
-
-        $payload = json_encode(array("mensaje" => "Mesa borrada con exito"));
+        $lista = Mesa::obtenerMejores();
+        $payload = json_encode(array("listaMesa" => $lista));
 
         $response = new Response();
         $response->getBody()->write($payload);
@@ -97,7 +87,4 @@ class EncuestaController extends Encuesta
           ->withHeader('Content-Type', 'application/json');
     }
 }
-
-
-
 ?>

@@ -1,21 +1,23 @@
 <?php
 
-class Mesa
+class Encuesta
 {
-    public $id;
-    public $num_ped;
-    public $rate_mesa;
-    public $rate_mozo;
-    public $rate_restaurante;
-    public $rate_cocinero;
+    public int $id;
+    public $cod_ped;
+    public int $rate_mesa;
+    public int $rate_mozo;
+    public int $rate_restaurante;
+    public int $rate_cocinero;
 
     public function crearEncuesta()
     {
-        $objAccesoDatos = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDatos->prepararConsulta("INSERT INTO reviews (num_ped, rate_mesa, rate_mozo, rate_restaurante, rate_cocinero) 
-            VALUES (:num_ped, :rate_mesa, :rate_mozo, :rate_restaurante, :rate_cocinero)");
         
-        $consulta->bindValue(':num_ped', $this->num_ped, PDO::PARAM_STR);
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta("INSERT INTO reviews (cod_ped, rate_mesa, rate_mozo, rate_restaurante, rate_cocinero) 
+            VALUES (:cod_ped, :rate_mesa, :rate_mozo, :rate_restaurante, :rate_cocinero)");
+        
+        $this->redondearValores();
+        $consulta->bindValue(':cod_ped', $this->cod_ped, PDO::PARAM_STR);
         $consulta->bindValue(':rate_mesa', $this->rate_mesa, PDO::PARAM_INT);
         $consulta->bindValue(':rate_mozo', $this->rate_mozo, PDO::PARAM_INT);
         $consulta->bindValue(':rate_restaurante', $this->rate_restaurante, PDO::PARAM_INT);
@@ -29,42 +31,43 @@ class Mesa
     public static function obtenerTodos()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDatos->prepararConsulta("SELECT id, cod_mesa, estado FROM mesas");
+        $consulta = $objAccesoDatos->prepararConsulta("SELECT * FROM reviews");
         $consulta->execute();
 
-        return $consulta->fetchAll(PDO::FETCH_CLASS, 'Mesa');
+        return $consulta->fetchAll(PDO::FETCH_CLASS, 'Encuesta');
+    }
+
+    public static function obtenerMejores()
+    {
+        $objAccesoDatos = AccesoDatos::obtenerInstancia();
+        $consulta = $objAccesoDatos->prepararConsulta(
+            "SELECT id, cod_ped, rate_mesa, rate_mozo, rate_restaurante, rate_cocinero, 
+            AVG(rate_mesa, rate_mozo, rate_restaurante, rate_cocinero) as promedio 
+            FROM reviews ORDER BY promedio LIMIT 10");
+        $consulta->execute();
+
+        return $consulta->fetchAll(PDO::FETCH_CLASS, 'Encuesta');
     }
 
     public static function obtenerEncuesta($id)
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDatos->prepararConsulta("SELECT id, cod_mesa, estado FROM mesas WHERE cod_mesa = :cod_mesa");
-        $consulta->bindValue(':cod_mesa', $mesa, PDO::PARAM_STR);
+        $consulta = $objAccesoDatos->prepararConsulta("SELECT * FROM mesas WHERE id = :id");
+        $consulta->bindValue(':id', $id, PDO::PARAM_INT);
         $consulta->execute();
 
-        return $consulta->fetchObject('Mesa');
+        return $consulta->fetchObject('Encuesta');
     }
 
-    public function modificarMesa()
-    {
-        $objAccesoDato = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDato->prepararConsulta("UPDATE mesas SET estado = :estado WHERE id = :id");
-        $consulta->bindValue(':estado', $this->estado, PDO::PARAM_STR);
-        $consulta->bindValue(':id', $this->id, PDO::PARAM_INT);
-        $consulta->execute();
-    }
-
-    public static function borrarMesa($mesa)
-    {
-        $objAccesoDato = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDato->prepararConsulta("DELETE mesas WHERE id = :id");
-        $consulta->bindValue(':id', $mesa, PDO::PARAM_INT);
-        $consulta->execute();
-    }
-
-    public static function validarEstado(string $rol){
-        return ($rol == 'esperando' || $rol == 'comiendo'||
-            $rol == 'pagando'|| $rol == 'cerrada');
+    public function redondearValores(){
+        if($this->rate_cocinero < 1){$this->rate_cocinero = 1;}
+        if($this->rate_cocinero > 10){$this->rate_cocinero = 10;}
+        if($this->rate_mozo < 1){$this->rate_mozo = 1;}
+        if($this->rate_mozo > 10){$this->rate_mozo = 10;}
+        if($this->rate_mesa < 1){$this->rate_mesa = 1;}
+        if($this->rate_mesa > 10){$this->rate_mesa = 10;}
+        if($this->rate_restaurante < 1){$this->rate_restaurante = 1;}
+        if($this->rate_restaurante > 10){$this->rate_restaurante = 10;}
     }
 
 }
