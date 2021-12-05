@@ -1,10 +1,12 @@
 <?php
 
 use Slim\Psr7\Response;
+use Fpdf\Fpdf;
 
 require_once './models/Pedido.php';
 require_once './models/Mesa.php';
 require_once './interfaces/IApiUsable.php';
+
 
 class PedidoController extends Pedido implements IApiUsable
 {
@@ -26,6 +28,23 @@ class PedidoController extends Pedido implements IApiUsable
         $ped->nombre_cliente = $cliente;
         $ped->cod_mesa = $idMesa;
         $ped->cod_pedido = CsvHandler::GenerarCodigo();
+        
+        $files = $request->getUploadedFiles();
+        if(!is_null($files['foto']))
+        {
+          $foto = $files['foto'];
+          $media = $foto->getClientMediaType();
+          $ext = explode("/", $media)[1];
+          $type = explode("/", $media)[0];
+          if($type != "image")
+          {
+            $ruta = "./Pedidos/" . "." . $ext;
+            $foto->moveTo($ruta);
+          }
+          else{$ruta = "";}
+        }
+        else{$ruta = "";}
+        $ped->dir_foto = $ruta;
         $ped->crearPedido();
         //TODO: FOTO
         $payload = json_encode(array("mensaje" => "Pedido $ped->cod_pedido en mesa $ped->cod_mesa creado con exito"));
@@ -257,5 +276,34 @@ class PedidoController extends Pedido implements IApiUsable
         
         return $response
           ->withHeader('Content-Type', 'application/json');        
+    }
+
+    public static function TraerPdf($request, $handler)
+    {
+        $lista = Pedido::obtenerTodos();
+        $pdf = new Fpdf('L');
+        $pdf->AddPage();
+        $pdf->Image("./logo.jpeg");
+        $pdf->Ln());
+        $pdf->SetFont('Arial', 'B', 12);
+        foreach ($lista as $key => $value) {
+            
+            $pdf->Cell(8, 6, $value->id, 1);
+            $pdf->Cell(8, 6, $value->id_usuario, 1);
+            $pdf->Cell(40, 6, $value->nombre_cliente, 1);
+            $pdf->Cell(10, 6, $value->cod_mesa, 1);
+            $pdf->Cell(10, 6, $value->cod_pedido, 1);
+            $pdf->Cell(100, 6, $value->dir_foto, 1);
+            $pdf->Cell(20, 6, json_encode($value->id_productos), 1);
+            $pdf->Cell(20, 6, $value->hora_inicio, 1);
+            $pdf->Cell(20, 6, $value->hora_entrega, 1);
+            $pdf->Ln();
+        }
+        $pdf->Output();
+
+
+        $response = new Response();
+        return $response
+            ->withStatus(200);
     }
 }

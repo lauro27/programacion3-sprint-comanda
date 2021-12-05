@@ -78,7 +78,7 @@ class EncuestaController extends Encuesta
     
     public function TraerMejores($request, $handler)
     {
-        $lista = Mesa::obtenerMejores();
+        $lista = Encuesta::obtenerMejores();
         $payload = json_encode(array("listaMesa" => $lista));
 
         $response = new Response();

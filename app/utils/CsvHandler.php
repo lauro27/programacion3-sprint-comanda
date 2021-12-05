@@ -4,7 +4,7 @@ class CsvHandler{
     public static function ObtenerDatosUsuarios($pathArchivo){
         if ($pathArchivo === NULL) return array();
 
-        $arrayColumnas = array("usuario","clave", "nombre", "apellido", "estado", "tipo");
+        $arrayColumnas = array("usuario","clave", "rol");
         $retorno = array();
     
         if (($archivo = fopen($pathArchivo, "r")) !== false) {

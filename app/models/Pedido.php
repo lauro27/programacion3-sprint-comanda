@@ -230,6 +230,46 @@ class Pedido
         return $resultado['cod_mesa'];
     }
 
+    public static function obtenerTodosTardios()
+    {
+        $respuesta = Pedido::obtenerTodos();
+        $array = array();
+
+        foreach ($respuesta as $key => $value) {
+            $tiempoEstimado = $value->hora_inicio . " + " . $value->estimado . " minute";
+            $tiempoFinal =  new DateTime($value->hora_entrega);
+            $temp = new DateTime (strtotime($tiempoEstimado));
+            if($temp > $tiempoFinal){
+                array_push($array, $value);
+            }
+        }
+
+        foreach ($respuesta as $key => $value) {
+            $respuesta[$key]->id_productos = json_decode($respuesta[$key]->id_productos);
+        }
+        return $respuesta;
+    }
+
+    public static function obtenerTodosEnTiempo()
+    {
+        $respuesta = Pedido::obtenerTodos();
+        $array = array();
+
+        foreach ($respuesta as $key => $value) {
+            $tiempoEstimado = $value->hora_inicio . " + " . $value->estimado . " minute";
+            $tiempoFinal =  new DateTime($value->hora_entrega);
+            $temp = new DateTime (strtotime($tiempoEstimado));
+            if($temp <= $tiempoFinal){
+                array_push($array, $value);
+            }
+        }
+
+        foreach ($respuesta as $key => $value) {
+            $respuesta[$key]->id_productos = json_decode($respuesta[$key]->id_productos);
+        }
+        return $respuesta;
+    }
+
     public static function ObtenerRolAsignado($sector)
     {
         $rol = "";
