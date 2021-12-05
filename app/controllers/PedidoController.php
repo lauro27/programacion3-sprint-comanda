@@ -284,7 +284,7 @@ class PedidoController extends Pedido implements IApiUsable
         $pdf = new Fpdf('L');
         $pdf->AddPage();
         $pdf->Image("./logo.jpeg");
-        $pdf->Ln());
+        $pdf->Ln();
         $pdf->SetFont('Arial', 'B', 12);
         foreach ($lista as $key => $value) {
             
