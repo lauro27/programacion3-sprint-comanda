@@ -40,6 +40,8 @@ $app->addBodyParsingMiddleware();
 
 $app->addRoutingMiddleware();
 
+date_default_timezone_set("America/Argentina/Buenos_Aires");
+
 // Routes
 
 $app->post('/login[/]', \LoginController::class . ':IniciarSesion');

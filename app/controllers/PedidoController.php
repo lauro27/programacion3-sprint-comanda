@@ -30,6 +30,7 @@ class PedidoController extends Pedido implements IApiUsable
         $ped->cod_pedido = CsvHandler::GenerarCodigo();
         
         $files = $request->getUploadedFiles();
+        var_dump($files);
         if(!is_null($files['foto']))
         {
           $foto = $files['foto'];
