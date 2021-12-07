@@ -9,9 +9,7 @@ require_once './interfaces/IApiUsable.php';
 class EncuestaController extends Encuesta
 {
     public function CargarUno($request, $handler, $args)
-    {
-        $args = $request->getQueryParams();
-        
+    {        
         var_dump($args);
         $response = new Response();
         if(!isset($args['pedido']) || !isset($args['mozo']) || !isset($args['restaurante']) || !isset($args['cocinero']) || !isset($args['mesa']) || !isset($args['cod_mesa']))
