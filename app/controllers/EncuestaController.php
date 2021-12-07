@@ -13,12 +13,12 @@ class EncuestaController extends Encuesta
         $args = $request->getQueryParams();
         
         $response = new Response();
-        if(!isset($args['codigo']) || !isset($args['mozo']) || !isset($args['restaurante']) || !isset($args['cocinero']) || !isset($args['mesa']) || !isset($args['cod_mesa']))
+        if(!isset($args['pedido']) || !isset($args['mozo']) || !isset($args['restaurante']) || !isset($args['cocinero']) || !isset($args['mesa']) || !isset($args['cod_mesa']))
         {
           return $response->withStatus(400, "faltan numeros");
         }
         var_dump($args);
-        $cPed = $args['codigo'];
+        $cPed = $args['pedido'];
         $cMesa = $args['cod_mesa'];
         $rMozo = $args['mozo'];
         $rResta = $args['restaurante'];
