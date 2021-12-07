@@ -23,7 +23,7 @@ require_once './controllers/LoginController.php';
 require_once './controllers/MesaController.php';
 require_once './controllers/PedidoController.php';
 require_once './controllers/ProductoController.php';
-
+require_once './controllers/EncuestaController.php';
 
 // Load ENV
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
@@ -105,11 +105,23 @@ $app->group('/pedidos', function (RouteCollectorProxy $group){
   $group->get('/pdf', \PedidoController::class . ":TraerPdf")
   ->add(\AuthMW::class . ':LoginSocioMozo')
   ->add(new Logger('Genera PDF'));
+  $group->get('/tarde', \PedidoController::class . ':TraerTarde')
+    ->add(\AuthMW::class . ':LoginSocio')
+    ->add(new Logger("Buscando pedidos tardios"));
+  $group->get('/puntual', \PedidoController::class . ':TraerPuntuales')
+    ->add(\AuthMW::class . ':LoginSocio')
+    ->add(new Logger("Buscando pedidos a tiempo"));
 });
 
-$app->get("/encuesta/{cod_mesa}/{pedido}/{restaurante}/{cocinero}/{mozo}/{mesa}", \EncuestaController::class . ":crearEncuesta");
-  
-
+$app->group("/encuesta",function (RouteCollectorProxy $group){
+  $group->put("/{cod_mesa}/{pedido}/{restaurante}/{cocinero}/{mozo}/{mesa}", \EncuestaController::class . ":crearEncuesta");
+  $group->get("/todos[/]", PedidoController::class . ':TraerTodos')
+    ->add(\AuthMW::class . ':LoginSocio')
+    ->add(new Logger("Buscando reviews"));
+  $group->get("/mejores[/]", PedidoController::class . ':TraerMejores')
+    ->add(\AuthMW::class . ':LoginSocio')
+    ->add(new Logger("Buscando mejores reviews"));  
+});
 
 $app->get('[/]', function (Request $request, Response $response) {    
   $response->getBody()->write("La comanda - Lamas Juan Pablo");

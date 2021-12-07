@@ -42,7 +42,6 @@ class PedidoController extends Pedido implements IApiUsable
         
         if(!is_null($files['foto']))
         {
-            echo("OK 1\n");
             if(!file_exists('Pedidos/')){
                 mkdir('Pedidos/',0777, true);
             }
@@ -50,10 +49,9 @@ class PedidoController extends Pedido implements IApiUsable
             $media = $foto->getClientMediaType();
             $ext = explode("/", $media)[1];
             $type = explode("/", $media)[0];
-            echo("OK 2 - $type $ext \n");
             if($type == "image")
             {
-              $ruta = "./Pedidos/" . "." . $ext;
+              $ruta = "./Pedidos/" . $ped->cod_pedido . "." . $ext;
               $foto->moveTo($ruta);
             }
             else{$ruta = "";}
@@ -297,7 +295,7 @@ class PedidoController extends Pedido implements IApiUsable
         $lista = Pedido::obtenerTodos();
         $pdf = new Fpdf('L');
         $pdf->AddPage();
-        $pdf->Image("./logo.jpeg");
+        $pdf->Image("./logo.png");
         $pdf->Ln();
         $pdf->SetFont('Arial', 'B', 12);
         foreach ($lista as $key => $value) {
@@ -319,5 +317,27 @@ class PedidoController extends Pedido implements IApiUsable
         $response = new Response();
         return $response
             ->withStatus(200);
+    }
+
+    public function TraerTardios($request, $handler)
+    {
+        $lista = Pedido::obtenerTodosTardios();
+        $payload = json_encode(array("listaPedido" => $lista));
+
+        $response = new Response();
+        $response->getBody()->write($payload);
+        return $response
+          ->withHeader('Content-Type', 'application/json');
+    }
+
+    public function TraerPuntuales($request, $handler)
+    {
+        $lista = Pedido::obtenerTodosEnTiempo();
+        $payload = json_encode(array("listaPedido" => $lista));
+
+        $response = new Response();
+        $response->getBody()->write($payload);
+        return $response
+          ->withHeader('Content-Type', 'application/json');
     }
 }
