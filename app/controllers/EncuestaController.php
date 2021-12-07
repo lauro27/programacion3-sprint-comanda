@@ -12,12 +12,12 @@ class EncuestaController extends Encuesta
     {
         $args = $request->getQueryParams();
         
+        var_dump($args);
         $response = new Response();
         if(!isset($args['pedido']) || !isset($args['mozo']) || !isset($args['restaurante']) || !isset($args['cocinero']) || !isset($args['mesa']) || !isset($args['cod_mesa']))
         {
           return $response->withStatus(400, "faltan numeros");
         }
-        var_dump($args);
         $cPed = $args['pedido'];
         $cMesa = $args['cod_mesa'];
         $rMozo = $args['mozo'];
@@ -39,7 +39,6 @@ class EncuestaController extends Encuesta
         $encuesta->rate_restaurante = intval($rResta);
         $encuesta->rate_cocinero = intval($rCocina);
         $encuesta->rate_mesa = intval($rMesa);
-        var_dump($encuesta);
         $thisid = $encuesta->crearencuesta();
 
         $payload = json_encode(array("mensaje" => "Reseña $thisid para pedido $cPed creada."));

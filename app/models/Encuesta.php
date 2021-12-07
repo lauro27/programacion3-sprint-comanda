@@ -16,7 +16,6 @@ class Encuesta
         $consulta = $objAccesoDatos->prepararConsulta("INSERT INTO reviews (cod_ped, rate_mesa, rate_mozo, rate_restaurante, rate_cocinero) 
             VALUES (:cod_ped, :rate_mesa, :rate_mozo, :rate_restaurante, :rate_cocinero)");
         
-        var_dump($this);
         $this->redondearValores();
 
         $consulta->bindValue(':cod_ped', $this->cod_ped, PDO::PARAM_STR);
