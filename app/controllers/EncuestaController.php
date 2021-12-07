@@ -9,8 +9,7 @@ require_once './interfaces/IApiUsable.php';
 class EncuestaController extends Encuesta
 {
     public function CargarUno($request, $handler, $args)
-    {        
-        echo($args);
+    {
         $response = new Response();
         if(!isset($args['pedido']) || !isset($args['mozo']) || !isset($args['restaurante']) || !isset($args['cocinero']) || !isset($args['mesa']) || !isset($args['cod_mesa']))
         {
@@ -39,7 +38,7 @@ class EncuestaController extends Encuesta
         $encuesta->rate_mesa = intval($rMesa);
         $thisid = $encuesta->crearencuesta();
 
-        $payload = json_encode(array("mensaje" => "Reseña $thisid para pedido $cPed creada."));
+        $payload = json_encode(array("mensaje" => "Reseña $thisid->id para pedido $cPed creada."));
 
         
         $response->getBody()->write($payload);
@@ -70,8 +69,8 @@ class EncuestaController extends Encuesta
 
     public function TraerTodos($request, $handler)
     {
-        $lista = Mesa::obtenerTodos();
-        $payload = json_encode(array("listaMesa" => $lista));
+        $lista = Encuesta::obtenerTodos();
+        $payload = json_encode(array("listaEncuesta" => $lista));
 
         $response = new Response();
         $response->getBody()->write($payload);
@@ -82,7 +81,7 @@ class EncuestaController extends Encuesta
     public function TraerMejores($request, $handler)
     {
         $lista = Encuesta::obtenerMejores();
-        $payload = json_encode(array("listaMesa" => $lista));
+        $payload = json_encode(array("listaEncuesta" => $lista));
 
         $response = new Response();
         $response->getBody()->write($payload);

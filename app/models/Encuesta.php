@@ -43,7 +43,7 @@ class Encuesta
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDatos->prepararConsulta(
             "SELECT id, cod_ped, rate_mesa, rate_mozo, rate_restaurante, rate_cocinero, 
-            AVG(rate_mesa, rate_mozo, rate_restaurante, rate_cocinero) as promedio 
+            ((rate_mesa + rate_mozo + rate_restaurante + rate_cocinero)/4) as promedio 
             FROM reviews ORDER BY promedio LIMIT 10");
         $consulta->execute();
 
