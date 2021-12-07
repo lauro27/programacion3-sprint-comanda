@@ -102,7 +102,12 @@ $app->group('/pedidos', function (RouteCollectorProxy $group){
   $group->post('/total', \PedidoController::class . ':TraerCuenta')
     ->add(\AuthMW::class . ':LoginSocioMozo')
     ->add(new Logger('Pide Factura'));
+  $group->get('/pdf', \PedidoController::class . ":TraerPdf")
+  ->add(\AuthMW::class . ':LoginSocioMozo')
+  ->add(new Logger('Genera PDF'));
 });
+
+$app->put("/encuesta/{mesa}/{pedido}/{restaurante}/{cocinero}/{mozo}/{mesa}", \EncuestaController::class . ":crearEncuesta");
   
 
 

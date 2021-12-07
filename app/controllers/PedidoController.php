@@ -18,8 +18,17 @@ class PedidoController extends Pedido implements IApiUsable
         $parametros = $request->getParsedBody();
         $payload = json_decode(AutentificadorJWT::ObtenerData($elToken));
         $id = $payload->id;
-        $cliente = $parametros['cliente'];
-        $idMesa = $parametros['mesa'];
+        
+        $response = new Response();
+        
+        if(isset($parametros['cliente']) && isset($parametros['mesa']))
+        {
+            $cliente = $parametros['cliente'];
+            $idMesa = $parametros['mesa'];
+        }
+        else{
+            return $response->withStatus(400, "Faltan datos en request");
+        }
 
         $mesa = Mesa::obtenerMesa($idMesa);
         // Creamos el pedido
@@ -33,6 +42,9 @@ class PedidoController extends Pedido implements IApiUsable
         var_dump($files);
         if(!is_null($files['foto']))
         {
+        if(!file_exists('Pedidos/')){
+            mkdir('Pedidos/',0777, true);
+        }
           $foto = $files['foto'];
           $media = $foto->getClientMediaType();
           $ext = explode("/", $media)[1];
@@ -50,7 +62,6 @@ class PedidoController extends Pedido implements IApiUsable
         //TODO: FOTO
         $payload = json_encode(array("mensaje" => "Pedido $ped->cod_pedido en mesa $ped->cod_mesa creado con exito"));
 
-        $response = new Response();
         $response->getBody()->write($payload);
         return $response
 

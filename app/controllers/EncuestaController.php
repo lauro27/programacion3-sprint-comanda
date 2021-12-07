@@ -8,17 +8,20 @@ require_once './interfaces/IApiUsable.php';
 
 class EncuestaController extends Encuesta
 {
-    public function CargarUno($request, $handler)
+    public function CargarUno($request, $handler, $args)
     {
-        $parametros = $request->getQueryParams();
+        $args = $request->getQueryParams();
         
         $response = new Response();
-
-        $cod = $parametros['codigo'];
-        $rMozo = $parametros['mozo'];
-        $rResta = $parametros['restaurante'];
-        $rCocina = $parametros['cocinero'];
-        $rMesa = $parametros['mesa'];
+        if(!isset($args['codigo']) || !isset($args['mozo']) || !isset($args['restaurante']) || !isset($args['codigo']) || !isset($args['codigo']))
+        {
+          return $response->withStatus(400, "faltan numeros");
+        }
+        $cod = $args['codigo'];
+        $rMozo = $args['mozo'];
+        $rResta = $args['restaurante'];
+        $rCocina = $args['cocinero'];
+        $rMesa = $args['mesa'];
         
         $pedido = Pedido::obtenerPorCodigo($cod);
 
