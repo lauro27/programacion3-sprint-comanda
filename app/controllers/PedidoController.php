@@ -39,22 +39,24 @@ class PedidoController extends Pedido implements IApiUsable
         $ped->cod_pedido = CsvHandler::GenerarCodigo();
         
         $files = $request->getUploadedFiles();
-        var_dump($files);
+        
         if(!is_null($files['foto']))
         {
-        if(!file_exists('Pedidos/')){
-            mkdir('Pedidos/',0777, true);
-        }
-          $foto = $files['foto'];
-          $media = $foto->getClientMediaType();
-          $ext = explode("/", $media)[1];
-          $type = explode("/", $media)[0];
-          if($type != "image")
-          {
-            $ruta = "./Pedidos/" . "." . $ext;
-            $foto->moveTo($ruta);
-          }
-          else{$ruta = "";}
+            echo("OK 1\n");
+            if(!file_exists('Pedidos/')){
+                mkdir('Pedidos/',0777, true);
+            }
+            $foto = $files['foto'];
+            $media = $foto->getClientMediaType();
+            $ext = explode("/", $media)[1];
+            $type = explode("/", $media)[0];
+            echo("OK 2 - $type $ext \n");
+            if($type == "image")
+            {
+              $ruta = "./Pedidos/" . "." . $ext;
+              $foto->moveTo($ruta);
+            }
+            else{$ruta = "";}
         }
         else{$ruta = "";}
         $ped->dir_foto = $ruta;
