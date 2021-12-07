@@ -236,7 +236,8 @@ class Pedido
         $array = array();
 
         foreach ($respuesta as $key => $value) {
-            $tiempoEstimado = new DateTime($value->hora_inicio . " + " . $value->estimado . " minute");
+            $tiempoEstimado = new DateTime($value->hora_inicio);
+            $tiempoEstimado->modify(" + " . $value->estimado . " minute");
             $tiempoFinal =  new DateTime($value->hora_entrega);
         
             if($tiempoEstimado > $tiempoFinal){
@@ -256,10 +257,10 @@ class Pedido
         $array = array();
 
         foreach ($respuesta as $key => $value) {
-            $tiempoEstimado = $value->hora_inicio . " + " . $value->estimado . " minute";
+            $tiempoEstimado = new DateTime($value->hora_inicio);
+            $tiempoEstimado->modify(" + " . $value->estimado . " minute");
             $tiempoFinal =  new DateTime($value->hora_entrega);
-            $temp = new DateTime (strtotime($tiempoEstimado));
-            if($temp <= $tiempoFinal){
+            if($tiempoEstimado <= $tiempoFinal){
                 array_push($array, $value);
             }
         }
