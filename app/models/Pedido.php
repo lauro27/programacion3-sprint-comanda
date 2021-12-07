@@ -245,10 +245,8 @@ class Pedido
             }
         }
 
-        foreach ($respuesta as $key => $value) {
-            $respuesta[$key]->id_productos = json_decode($respuesta[$key]->id_productos);
-        }
-        return $respuesta;
+        
+        return json_encode($array);
     }
 
     public static function obtenerTodosEnTiempo()
@@ -267,10 +265,7 @@ class Pedido
             }
         }
 
-        foreach ($respuesta as $key => $value) {
-            $respuesta[$key]->id_productos = json_decode($respuesta[$key]->id_productos);
-        }
-        return $respuesta;
+        return json_encode($array);
     }
 
     public static function ObtenerRolAsignado($sector)
