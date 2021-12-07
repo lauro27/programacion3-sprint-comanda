@@ -232,7 +232,7 @@ class Pedido
 
     public static function obtenerTodosTardios()
     {
-        $respuesta = Pedido::obtenerTodos();
+        $respuesta = Pedido::obtenerListos();
         $array = array();
 
         foreach ($respuesta as $key => $value) {
@@ -240,7 +240,7 @@ class Pedido
             $tiempoEstimado->modify(" + " . $value->estimado . " minute");
             $tiempoFinal =  new DateTime($value->hora_entrega);
         
-            if($tiempoEstimado > $tiempoFinal){
+            if($tiempoEstimado <= $tiempoFinal){
                 array_push($array, $value);
             }
         }
@@ -260,7 +260,7 @@ class Pedido
             $tiempoEstimado = new DateTime($value->hora_inicio);
             $tiempoEstimado->modify(" + " . $value->estimado . " minute");
             $tiempoFinal =  new DateTime($value->hora_entrega);
-            if($tiempoEstimado <= $tiempoFinal){
+            if($tiempoEstimado > $tiempoFinal){
                 array_push($array, $value);
             }
         }
