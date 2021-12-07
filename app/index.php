@@ -114,11 +114,11 @@ $app->group('/pedidos', function (RouteCollectorProxy $group){
 });
 
 $app->group("/encuesta",function (RouteCollectorProxy $group){
-  $group->put("/{cod_mesa}/{pedido}/{restaurante}/{cocinero}/{mozo}/{mesa}", \EncuestaController::class . ":crearEncuesta");
-  $group->get("/todos[/]", PedidoController::class . ':TraerTodos')
+  $group->put("/{cod_mesa}/{pedido}/{restaurante}/{cocinero}/{mozo}/{mesa}", \EncuestaController::class . ":CargarUno");
+  $group->get("/todos[/]", \EncuestaController::class . ':TraerTodos')
     ->add(\AuthMW::class . ':LoginSocio')
     ->add(new Logger("Buscando reviews"));
-  $group->get("/mejores[/]", PedidoController::class . ':TraerMejores')
+  $group->get("/mejores[/]", \EncuestaController::class . ':TraerMejores')
     ->add(\AuthMW::class . ':LoginSocio')
     ->add(new Logger("Buscando mejores reviews"));  
 });
