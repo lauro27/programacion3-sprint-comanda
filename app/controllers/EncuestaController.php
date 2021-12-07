@@ -17,6 +17,7 @@ class EncuestaController extends Encuesta
         {
           return $response->withStatus(400, "faltan numeros");
         }
+        var_dump($args);
         $cPed = $args['codigo'];
         $cMesa = $args['cod_mesa'];
         $rMozo = $args['mozo'];
@@ -35,10 +36,10 @@ class EncuestaController extends Encuesta
         $encuesta = new Encuesta();
         $encuesta->cod_ped = $cPed;
         $encuesta->rate_mozo = intval($rMozo);
-        $encuesta->rate_restaurante = intval($rMozo);
+        $encuesta->rate_restaurante = intval($rResta);
         $encuesta->rate_cocinero = intval($rCocina);
         $encuesta->rate_mesa = intval($rMesa);
-        
+        var_dump($encuesta);
         $thisid = $encuesta->crearencuesta();
 
         $payload = json_encode(array("mensaje" => "Reseña $thisid para pedido $cPed creada."));
