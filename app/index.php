@@ -107,7 +107,7 @@ $app->group('/pedidos', function (RouteCollectorProxy $group){
   ->add(new Logger('Genera PDF'));
 });
 
-$app->put("/encuesta/{mesa}/{pedido}/{restaurante}/{cocinero}/{mozo}/{mesa}", \EncuestaController::class . ":crearEncuesta");
+$app->get("/encuesta/{cod_mesa}/{pedido}/{restaurante}/{cocinero}/{mozo}/{mesa}", \EncuestaController::class . ":crearEncuesta");
   
 
 

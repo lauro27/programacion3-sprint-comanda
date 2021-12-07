@@ -13,17 +13,19 @@ class EncuestaController extends Encuesta
         $args = $request->getQueryParams();
         
         $response = new Response();
-        if(!isset($args['codigo']) || !isset($args['mozo']) || !isset($args['restaurante']) || !isset($args['codigo']) || !isset($args['codigo']))
+        if(!isset($args['codigo']) || !isset($args['mozo']) || !isset($args['restaurante']) || !isset($args['cocinero']) || !isset($args['mesa']) || !isset($args['cod_mesa']))
         {
           return $response->withStatus(400, "faltan numeros");
         }
-        $cod = $args['codigo'];
+        $cPed = $args['codigo'];
+        $cMesa = $args['cod_mesa'];
         $rMozo = $args['mozo'];
         $rResta = $args['restaurante'];
         $rCocina = $args['cocinero'];
         $rMesa = $args['mesa'];
         
-        $pedido = Pedido::obtenerPorCodigo($cod);
+        
+        $pedido = Pedido::obtenerConMesa($cPed, $cMesa);
 
         if(!$pedido->estado == "listo")
         {
@@ -31,7 +33,7 @@ class EncuestaController extends Encuesta
         }
         
         $encuesta = new Encuesta();
-        $encuesta->cod_ped = $cod;
+        $encuesta->cod_ped = $cPed;
         $encuesta->rate_mozo = intval($rMozo);
         $encuesta->rate_restaurante = intval($rMozo);
         $encuesta->rate_cocinero = intval($rCocina);
@@ -39,7 +41,7 @@ class EncuestaController extends Encuesta
         
         $thisid = $encuesta->crearencuesta();
 
-        $payload = json_encode(array("mensaje" => "Reseña $thisid para pedido $cod creada."));
+        $payload = json_encode(array("mensaje" => "Reseña $thisid para pedido $cPed creada."));
 
         
         $response->getBody()->write($payload);
