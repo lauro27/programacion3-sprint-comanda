@@ -13,7 +13,7 @@ class Pedido
     public $dir_foto = NULL;
     public $id_productos = array();
     public $estado = 'preparando';
-    public $estimado; // en minutos
+    public $estimado = 0; // en minutos
     public $hora_inicio;
     public $hora_entrega = NULL;
     public $cod_mesa;//
@@ -253,10 +253,12 @@ class Pedido
 
     public static function obtenerTodosEnTiempo()
     {
-        $respuesta = Pedido::obtenerTodos();
+        $respuesta = Pedido::obtenerListos();
         $array = array();
 
         foreach ($respuesta as $key => $value) {
+            if(is_null($value->estimado)){ $est = 0;}
+            else{ $est = $value->estimado; }
             $tiempoEstimado = new DateTime($value->hora_inicio);
             $tiempoEstimado->modify(" + " . $value->estimado . " minute");
             $tiempoFinal =  new DateTime($value->hora_entrega);
