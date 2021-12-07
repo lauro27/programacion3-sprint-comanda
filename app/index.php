@@ -105,7 +105,7 @@ $app->group('/pedidos', function (RouteCollectorProxy $group){
   $group->get('/pdf', \PedidoController::class . ":TraerPdf")
   ->add(\AuthMW::class . ':LoginSocioMozo')
   ->add(new Logger('Genera PDF'));
-  $group->get('/tarde', \PedidoController::class . ':TraerTarde')
+  $group->get('/tarde', \PedidoController::class . ':TraerTardios')
     ->add(\AuthMW::class . ':LoginSocio')
     ->add(new Logger("Buscando pedidos tardios"));
   $group->get('/puntual', \PedidoController::class . ':TraerPuntuales')

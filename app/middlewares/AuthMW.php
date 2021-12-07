@@ -27,7 +27,6 @@ class AuthMW
         
         try{
             $payload = json_decode(AutentificadorJWT::ObtenerData($token));
-            var_dump($payload);
             if($payload->rol != "socio"){ throw new Exception("No autorizado");}
             $response = $handler->handle($request);
         }
