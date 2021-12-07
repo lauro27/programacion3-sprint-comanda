@@ -236,10 +236,10 @@ class Pedido
         $array = array();
 
         foreach ($respuesta as $key => $value) {
-            $tiempoEstimado = $value->hora_inicio . " + " . $value->estimado . " minute";
+            $tiempoEstimado = new DateTime($value->hora_inicio . " + " . $value->estimado . " minute");
             $tiempoFinal =  new DateTime($value->hora_entrega);
-            $temp = new DateTime (strtotime($tiempoEstimado));
-            if($temp > $tiempoFinal){
+        
+            if($tiempoEstimado > $tiempoFinal){
                 array_push($array, $value);
             }
         }
