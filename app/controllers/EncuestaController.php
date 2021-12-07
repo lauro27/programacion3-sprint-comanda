@@ -10,7 +10,7 @@ class EncuestaController extends Encuesta
 {
     public function CargarUno($request, $handler, $args)
     {        
-        var_dump($args);
+        echo($args);
         $response = new Response();
         if(!isset($args['pedido']) || !isset($args['mozo']) || !isset($args['restaurante']) || !isset($args['cocinero']) || !isset($args['mesa']) || !isset($args['cod_mesa']))
         {
