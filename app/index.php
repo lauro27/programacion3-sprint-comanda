@@ -44,12 +44,18 @@ date_default_timezone_set("America/Argentina/Buenos_Aires");
 
 // Routes
 
-$app->post('/login[/]', \LoginController::class . ':IniciarSesion');
+$app->post('/login[/]', \LoginController::class . ':IniciarSesion')
+  ->add(new Logger("Inicio de sesion"));
 
 $app->group('/usuarios', function (RouteCollectorProxy $group) {
-    $group->get('[/]', \UsuarioController::class . ':TraerTodos');
-    $group->get('/{usuario}', \UsuarioController::class . ':TraerUno');
-    $group->post('[/]', \UsuarioController::class . ':CargarUno');
+    $group->get('[/]', \UsuarioController::class . ':TraerTodos')
+      ->add(new Logger("busca usuario"));
+    $group->get('/{usuario}', \UsuarioController::class . ':TraerUno')
+      ->add(new Logger("busca todos los usuarios"));
+    $group->post('[/]', \UsuarioController::class . ':CargarUno')
+      ->add(new Logger("creando usuario"));
+    $group->post('/csv', \UsuarioController::class . ':CargarPorCsv')
+      ->add(new Logger("creando usuarios por csv"));
 })->add(\AuthMW::class . ':LoginSocio');
 
 $app->group('/productos', function (RouteCollectorProxy $group){
