@@ -32,7 +32,7 @@ class AuthMW
         }
         catch(Exception $e){
             $payload = json_encode(array('error'=> $e->getMessage()));
-            $response = $response->withStatus(403);
+            $response = $response->withStatus(403, $payload);
         }
         return $response;
     }
