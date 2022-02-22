@@ -126,6 +126,7 @@ class Pedido
                 WHERE id = :id");
         $consulta->bindValue(':id_producto', $this->id_producto, PDO::PARAM_STR);
         $consulta->bindValue(':estado', $this->estado);
+        $entrega = date('Y-m-d H:i:s', strtotime($this->estimado));
         $consulta->bindValue(':estimado', $this->estimado);
         $entrega = date('Y-m-d H:i:s', strtotime($this->hora_entrega));
         var_dump($entrega);
