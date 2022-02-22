@@ -11,7 +11,7 @@ class Pedido
     public $id_usuario;
     public $nombre_cliente;
     public $id_producto;
-    public $estado = 'listado';
+    public $estado = 'recibido';
     public $estimado;
     public $hora_inicio;
     public $hora_entrega = NULL;
