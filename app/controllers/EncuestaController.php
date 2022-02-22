@@ -42,8 +42,7 @@ class EncuestaController extends Encuesta
       $encuesta->rate_restaurante = intval($rResta);
       $encuesta->rate_cocinero = intval($rCocina);
       $encuesta->rate_mesa = intval($rMesa);
-      $thisid = $encuesta->crearencuesta();
-      $payload = json_encode(array("mensaje" => "Reseña $thisid->id para pedido $cPed creada."));
+      $payload = json_encode(array("mensaje" => "Reseña para pedido $cPed creada."));
       
       $response->getBody()->write($payload);
       return $response
