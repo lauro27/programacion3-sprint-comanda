@@ -150,7 +150,7 @@ class PedidoController extends Pedido implements IApiUsable
                 $tiempoEstimado = new DateTime($ped->hora_inicio);
                 $tiempoEstimado->modify(" + " . $minEstimado . " minute");
                 $ped->hora_estimado = $tiempoEstimado;
-                $msg = $ped->ModificarPedido();
+                $msg = $ped->modificarPedido();
                 $payload = json_encode(array("mensaje" => "Pedido". $ped->cod_pedido . " seteado a preparando."));
                 $response->getBody()->write($payload);
             }
@@ -192,7 +192,7 @@ class PedidoController extends Pedido implements IApiUsable
                 $ped->estado = "listo";
                 $tiempoFinal = new DateTime("now");
                 $ped->hora_entrega = $tiempoFinal;
-                $msg = $ped->ModificarPedido();
+                $msg = $ped->modificarPedido();
                 $payload = json_encode(array("mensaje" => "Pedido". $ped->cod_pedido . " seteado a listo."));
                 $response->getBody()->write($payload);
             }
@@ -222,7 +222,7 @@ class PedidoController extends Pedido implements IApiUsable
         }else{
             //cuando todo esta bien, arrancamos
             $ped->estado = "entregado";
-            $msg = $ped->ModificarPedido();
+            $msg = $ped->modificarPedido();
             $payload = json_encode(array("mensaje" => "Pedido". $ped->cod_pedido . " seteado a entregado."));
             $response->getBody()->write($payload);
         }
@@ -247,7 +247,7 @@ class PedidoController extends Pedido implements IApiUsable
         }else{
             //cuando todo esta bien, arrancamos
             $ped->estado = "pagado";
-            $msg = $ped->ModificarPedido();
+            $msg = $ped->modificarPedido();
             $payload = json_encode(array("mensaje" => "Pedido". $ped->cod_pedido . " seteado a pagado."));
             $response->getBody()->write($payload);
         }
@@ -272,7 +272,7 @@ class PedidoController extends Pedido implements IApiUsable
         }else{
             //cuando todo esta bien, arrancamos
             $ped->estado = "cancelado";
-            $msg = $ped->ModificarPedido();
+            $msg = $ped->modificarPedido();
             $payload = json_encode(array("mensaje" => "Pedido". $ped->cod_pedido . " seteado a cancelado."));
             $response->getBody()->write($payload);
         }
