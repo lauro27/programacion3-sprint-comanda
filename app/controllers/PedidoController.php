@@ -136,7 +136,9 @@ class PedidoController extends Pedido implements IApiUsable
             $response->withStatus(400, "pedido no valido");
 
         }//revisando si el estimado en minutos existe y es mayor a 0
-        elseif($minEstimado != NULL || $minEstimado <= 0){
+        elseif($minEstimado != NULL || $minEstimado <= 0)
+        {
+            var_dump($minEstimado);
             $response->withStatus(400, "estimado no valido");
         }else{
             
