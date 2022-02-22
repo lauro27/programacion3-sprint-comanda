@@ -84,7 +84,7 @@ class Producto{
                 if($this->sector == "vinos"){return true;}
                 break;
             case 'cervecero':
-                if($this->sector == "cervezas"){return true;}
+                if($this->sector == "cerveza"){return true;}
                 break;
             case 'cocinero':
                 if($this->sector == "cocina" || $this->sector == "candy"){return true;}
