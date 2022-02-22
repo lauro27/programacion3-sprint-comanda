@@ -23,7 +23,7 @@ class Pedido
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDatos->prepararConsulta(
             "INSERT INTO pedidos (id_usuario, nombre_cliente, id_producto, estado, hora_inicio, cod_mesa, cod_pedido)
-            VALUES (:id_usuario, :nombre_cliente, :dir_foto, :id_producto, :estado, :hora_inicio, :cod_mesa, :cod_pedido)");
+            VALUES (:id_usuario, :nombre_cliente, :id_producto, :estado, :hora_inicio, :cod_mesa, :cod_pedido)");
         
         $consulta->bindValue(':id_usuario', $this->id_usuario, PDO::PARAM_INT);
         $consulta->bindValue(':nombre_cliente', $this->nombre_cliente);

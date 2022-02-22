@@ -53,16 +53,16 @@ $app->group('/usuarios', function (RouteCollectorProxy $group) {
     $group->get('/{usuario}', \UsuarioController::class . ':TraerUno')
       ->add(new Logger("busca todos los usuarios"));
     $group->post('[/]', \UsuarioController::class . ':CargarUno')
-      /*->add(new Logger("creando usuario"))*/;
+      ->add(new Logger("creando usuario"));
     $group->post('/csv', \UsuarioController::class . ':CargarPorCsv')
       ->add(new Logger("creando usuarios por csv"));
 })->add(\AuthMW::class . ':LoginSocio');
 
 $app->group('/productos', function (RouteCollectorProxy $group){
   $group->get('[/]', \ProductoController::class . ':TraerTodos');
-    $group->get('/{producto}', \ProductoController::class . ':TraerUno');
-    $group->post('[/]', \ProductoController::class . ':CargarUno')
-      ->add(\AuthMW::class . ':LoginSocio')
+  $group->get('/{producto}', \ProductoController::class . ':TraerUno');
+  $group->post('[/]', \ProductoController::class . ':CargarUno')
+    ->add(\AuthMW::class . ':LoginSocio')
       ->add(new Logger("Agrega producto"));
 });
 
