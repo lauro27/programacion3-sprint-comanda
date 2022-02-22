@@ -126,16 +126,25 @@ class Pedido
                 WHERE id = :id");
         $consulta->bindValue(':id_producto', $this->id_producto, PDO::PARAM_STR);
         $consulta->bindValue(':estado', $this->estado);
-        if(gettype($this->estimado) != "string"){
-            if($this->estimado) { $est = $this->estimado->format('Y-m-d H:i:s');}
-            else{$est = null;}
+
+        //si existe
+        if($this->estimado){
+            //si no fue formateado
+            if(gettype($this->estimado) != "string"){
+                $est = $this->estimado->format('Y-m-d H:i:s');
+            }
+           else {$est = $this->estimado;}
         }
-        else {$est = $this->estimado->format('Y-m-d H:i:s');}
+        else{$est = null;}
         $consulta->bindValue(':estimado', $est);
         
-        if($this->hora_entrega) { $ent = $this->hora_entrega->format('Y-m-d H:i:s'); }
+        if($this->hora_entrega){
+            if(gettype($this->hora_entrega) != "string"){
+                $ent = $this->hora_entrega->format('Y-m-d H:i:s');
+            }
+           else {$ent = $this->hora_entrega;}
+        }
         else{$ent = null;}
-
         $consulta->bindValue(':hora_entrega', $ent);
         $consulta->bindValue(':id', $this->id, PDO::PARAM_INT);
         $consulta->execute();
