@@ -127,24 +127,22 @@ class PedidoController extends Pedido implements IApiUsable
         $minEstimado = intval($parametros['minutos']);
         
 
+        var_dump($minEstimado);
         $response = new Response();
-        var_dump($ped);
         //revisando si el pedido existe y no tiene estimado aun
         if($ped->id_producto == NULL || $ped->estado != "recibido")
         {
-            
             $response->withStatus(400, "pedido no valido");
 
         }//revisando si el estimado en minutos existe y es mayor a 0
         elseif($minEstimado == NULL || $minEstimado <= 0)
         {
-            var_dump($minEstimado);
             $response->withStatus(400, "estimado no valido");
         }else{
             
             $producto = Producto::obtenerPorId($ped->id_producto);
-            var_dump($producto);
             //revisando si el producto es del sector del empleado o si es socio
+            var_dump($producto->SectorCorrecto($data->rol));
             if($producto->SectorCorrecto($data->rol)){
                 //cuando todo esta bien, arrancamos
                 $ped->estado = "preparando";
@@ -157,9 +155,9 @@ class PedidoController extends Pedido implements IApiUsable
                 $response->getBody()->write($payload);
             }
             else{
+                echo("FAKE");
                 $response->withStatus(403, "Forbidden: Rol invalido");
             }
-            var_dump($response);
         }
 
         
