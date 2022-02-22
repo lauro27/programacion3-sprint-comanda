@@ -229,7 +229,7 @@ class Pedido
         foreach ($respuesta as $key => $value) {
             $respuesta[$key]->id_producto = json_decode($respuesta[$key]->id_producto);
         }
-        return json_encode($respuesta);
+        return $respuesta;
     }
 
     public static function obtenerTodosEnTiempo()
@@ -253,7 +253,7 @@ class Pedido
         foreach ($respuesta as $key => $value) {
             $respuesta[$key]->id_producto = json_decode($respuesta[$key]->id_producto);
         }
-        return json_encode($respuesta);
+        return $respuesta;
     }
 
     public static function ObtenerTodosPorMesa(string $codigo, string $estado)
