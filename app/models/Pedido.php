@@ -226,7 +226,9 @@ class Pedido
         $consulta->execute();
 
         $respuesta = $consulta->fetchAll(PDO::FETCH_CLASS, 'Pedido');
-
+        foreach ($respuesta as $key => $value) {
+            $respuesta[$key]->id_producto = json_decode($respuesta[$key]->id_producto);
+        }
         return json_encode($respuesta);
     }
 
@@ -248,7 +250,9 @@ class Pedido
         $consulta->execute();
 
         $respuesta = $consulta->fetchAll(PDO::FETCH_CLASS, 'Pedido');
-
+        foreach ($respuesta as $key => $value) {
+            $respuesta[$key]->id_producto = json_decode($respuesta[$key]->id_producto);
+        }
         return json_encode($respuesta);
     }
 
