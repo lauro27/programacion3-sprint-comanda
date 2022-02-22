@@ -357,7 +357,6 @@ class PedidoController extends Pedido implements IApiUsable
             $pdf->Cell(30, 6, $value->nombre_cliente, 1);
             $pdf->Cell(15, 6, $value->cod_mesa, 1);
             $pdf->Cell(15, 6, $value->cod_pedido, 1);
-            $pdf->Cell(60, 6, $value->dir_foto, 1);
             $pdf->Cell(20, 6, $value->id_productos, 1);
             $pdf->Cell(40, 6, $value->hora_inicio, 1);
             $pdf->Cell(40, 6, $value->hora_entrega, 1);

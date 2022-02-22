@@ -10,40 +10,44 @@ class EncuestaController extends Encuesta
 {
     public function CargarUno($request, $handler, $args)
     {
-        $response = new Response();
-        if(!isset($args['pedido']) || !isset($args['mozo']) || !isset($args['restaurante']) || !isset($args['cocinero']) || !isset($args['mesa']) || !isset($args['cod_mesa']))
-        {
-          return $response->withStatus(400, "faltan numeros");
-        }
-        $cPed = $args['pedido'];
-        $cMesa = $args['cod_mesa'];
-        $rMozo = $args['mozo'];
-        $rResta = $args['restaurante'];
-        $rCocina = $args['cocinero'];
-        $rMesa = $args['mesa'];
-        
-        
-        $pedido = Pedido::obtenerConMesa($cPed, $cMesa);
+      $parametros = $request->getParsedBody();
 
-        if(!$pedido->estado == "listo")
-        {
-          return $response->withStatus(400, "Pedido no valido");
-        }
-        
-        $encuesta = new Encuesta();
-        $encuesta->cod_ped = $cPed;
-        $encuesta->rate_mozo = intval($rMozo);
-        $encuesta->rate_restaurante = intval($rResta);
-        $encuesta->rate_cocinero = intval($rCocina);
-        $encuesta->rate_mesa = intval($rMesa);
-        $thisid = $encuesta->crearencuesta();
-
-        $payload = json_encode(array("mensaje" => "Reseña $thisid->id para pedido $cPed creada."));
-
-        
-        $response->getBody()->write($payload);
-        return $response
-          ->withHeader('Content-Type', 'application/json');
+      $response = new Response();
+      if(!isset($parametros['pedido']) || 
+          !isset($parametros['mozo']) || 
+          !isset($parametros['restaurante']) || 
+          !isset($parametros['cocinero']) || 
+          !isset($parametros['mesa']) || 
+          !isset($parametros['cod_mesa']))
+      {
+        return $response->withStatus(400, "faltan numeros");
+      }
+      $cPed = $parametros['pedido'];
+      $cMesa = $parametros['cod_mesa'];
+      $rMozo = $parametros['mozo'];
+      $rResta = $parametros['restaurante'];
+      $rCocina = $parametros['cocinero'];
+      $rMesa = $parametros['mesa'];
+      
+      
+      $pedido = Pedido::obtenerConMesa($cPed, $cMesa);
+      if($pedido->estado != "pagado")
+      {
+        return $response->withStatus(400, "Pedido no valido");
+      }
+      
+      $encuesta = new Encuesta();
+      $encuesta->cod_ped = $cPed;
+      $encuesta->rate_mozo = intval($rMozo);
+      $encuesta->rate_restaurante = intval($rResta);
+      $encuesta->rate_cocinero = intval($rCocina);
+      $encuesta->rate_mesa = intval($rMesa);
+      $thisid = $encuesta->crearencuesta();
+      $payload = json_encode(array("mensaje" => "Reseña $thisid->id para pedido $cPed creada."));
+      
+      $response->getBody()->write($payload);
+      return $response
+        ->withHeader('Content-Type', 'application/json');
     }
 
     public function TraerUno($request, $handler, $args)
