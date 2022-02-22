@@ -12,18 +12,15 @@ class MesaController extends Mesa implements IApiUsable
     public function CargarUno($request, $handler)
     {
         $cod = CsvHandler::GenerarCodigo();
-        $est = "cerrada";
 
         // Creamos la mesa
         $mesa = new Mesa();
         $mesa->cod_mesa = $cod;
-        $mesa->estado = $est;
-        
         
         //FOTO ACA
         $files = $request->getUploadedFiles();
 
-        if(!is_null($files['foto']))
+        if($files['foto'])
         {
             if(!file_exists('Mesas/')){
                 mkdir('Mesas/',0777, true);

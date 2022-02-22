@@ -28,12 +28,15 @@ class AuthMW
             $token = trim(explode('Bearer', $header)[1]);
             $payload = json_decode(AutentificadorJWT::ObtenerData($token));
             if($payload->rol != "socio"){ throw new Exception("No autorizado");}
-            $response = $handler->handle($request);
+
         }
         catch(Exception $e){
             $payload = json_encode(array('error'=> $e->getMessage()));
             $response = $response->withStatus(403, $payload);
+            return $response;
         }
+        $response = $handler->handle($request);
+        
         return $response;
     }
 
@@ -46,13 +49,13 @@ class AuthMW
             $token = trim(explode('Bearer', $header)[1]);
             $payload = json_decode(AutentificadorJWT::ObtenerData($token));
             if($payload->rol != "socio" && $payload->rol != 'mozo'){ throw new Exception("No autorizado");}
-            $response = $handler->handle($request);
         }
         catch(Exception $e){
             $payload = json_encode(array('error'=> $e->getMessage()));
-            
             $response = $response->withStatus(403, $e->getMessage());
+            return $response;
         }
+        $response = $handler->handle($request);
         return $response;
     }
 
@@ -66,12 +69,14 @@ class AuthMW
             $token = trim(explode('Bearer', $header)[1]);
             $payload = json_decode(AutentificadorJWT::ObtenerData($token));
             if(!Usuario::validarRol($payload->rol)){ throw new Exception("No autorizado");}
-            $response = $handler->handle($request);
+            
         }
         catch(Exception $e){
             $payload = json_encode(array('error'=> $e->getMessage()));
             $response = $response->withStatus(403, $e->getMessage());
+            return $response;
         }
+        $response = $handler->handle($request);
         return $response;
     }
 }

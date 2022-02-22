@@ -10,8 +10,9 @@ class Mesa
     public function crearMesa()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDatos->prepararConsulta("INSERT INTO mesas (cod_mesa, dir_foto) VALUES (:cod_mesa, :dir_foto)");
+        $consulta = $objAccesoDatos->prepararConsulta("INSERT INTO mesas (cod_mesa, estado, dir_foto) VALUES (:cod_mesa, :estado, :dir_foto)");
         $consulta->bindValue(':cod_mesa', $this->cod_mesa, PDO::PARAM_STR);
+        $consulta->bindValue(':estado', $this->estado, PDO::PARAM_STR);
         $consulta->bindValue(':dir_foto', $this->dir_foto, PDO::PARAM_STR);
         $consulta->execute();
 
