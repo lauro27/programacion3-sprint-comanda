@@ -127,7 +127,6 @@ class PedidoController extends Pedido implements IApiUsable
         $minEstimado = intval($parametros['minutos']);
         
 
-        var_dump($minEstimado);
         $response = new Response();
         //revisando si el pedido existe y no tiene estimado aun
         if($ped->id_producto == NULL || $ped->estado != "recibido")
@@ -142,7 +141,6 @@ class PedidoController extends Pedido implements IApiUsable
             
             $producto = Producto::obtenerPorId($ped->id_producto);
             //revisando si el producto es del sector del empleado o si es socio
-            var_dump($producto->SectorCorrecto($data->rol));
             if($producto->SectorCorrecto($data->rol)){
                 //cuando todo esta bien, arrancamos
                 $ped->estado = "preparando";
@@ -150,6 +148,7 @@ class PedidoController extends Pedido implements IApiUsable
                 $tiempoEstimado->modify(" + " . $minEstimado . " minute");
                 var_dump($tiempoEstimado);
                 $ped->estimado = $tiempoEstimado;
+                var_dump($ped);
                 $msg = $ped->modificarPedido();
                 $payload = json_encode(array("mensaje" => "Pedido". $ped->cod_pedido . " seteado a preparando."));
                 $response->getBody()->write($payload);
