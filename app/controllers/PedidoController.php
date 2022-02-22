@@ -148,7 +148,7 @@ class PedidoController extends Pedido implements IApiUsable
                 $tiempoEstimado->modify(" + " . $minEstimado . " minute");
                 $ped->estimado = $tiempoEstimado;
                 $msg = $ped->modificarPedido();
-                $payload = json_encode(array("mensaje" => "Pedido". $ped->cod_pedido . " seteado a preparando."));
+                $payload = json_encode(array("mensaje" => "Pedido ". $ped->cod_pedido . " seteado a preparando."));
                 $response->getBody()->write($payload);
             }
             else{
@@ -190,7 +190,7 @@ class PedidoController extends Pedido implements IApiUsable
                 $tiempoFinal = new DateTime("now");
                 $ped->hora_entrega = $tiempoFinal;
                 $msg = $ped->modificarPedido();
-                $payload = json_encode(array("mensaje" => "Pedido". $ped->cod_pedido . " seteado a listo."));
+                $payload = json_encode(array("mensaje" => "Pedido ". $ped->cod_pedido . " seteado a listo."));
                 $response->getBody()->write($payload);
             }
             else{
@@ -220,7 +220,7 @@ class PedidoController extends Pedido implements IApiUsable
             //cuando todo esta bien, arrancamos
             $ped->estado = "entregado";
             $msg = $ped->modificarPedido();
-            $payload = json_encode(array("mensaje" => "Pedido". $ped->cod_pedido . " seteado a entregado."));
+            $payload = json_encode(array("mensaje" => "Pedido ". $ped->cod_pedido . " seteado a entregado."));
             $response->getBody()->write($payload);
         }
         
@@ -245,7 +245,7 @@ class PedidoController extends Pedido implements IApiUsable
             //cuando todo esta bien, arrancamos
             $ped->estado = "pagado";
             $msg = $ped->modificarPedido();
-            $payload = json_encode(array("mensaje" => "Pedido". $ped->cod_pedido . " seteado a pagado."));
+            $payload = json_encode(array("mensaje" => "Pedido ". $ped->cod_pedido . " seteado a pagado."));
             $response->getBody()->write($payload);
         }
         
@@ -270,7 +270,7 @@ class PedidoController extends Pedido implements IApiUsable
             //cuando todo esta bien, arrancamos
             $ped->estado = "cancelado";
             $msg = $ped->modificarPedido();
-            $payload = json_encode(array("mensaje" => "Pedido". $ped->cod_pedido . " seteado a cancelado."));
+            $payload = json_encode(array("mensaje" => "Pedido ". $ped->cod_pedido . " seteado a cancelado."));
             $response->getBody()->write($payload);
         }
         
