@@ -164,7 +164,7 @@ class MesaController extends Mesa implements IApiUsable
       $response = new Response();
       if(isset($mesa->id)){
           $total = 0;
-          $a = Pedido::ObtenerTodosPorMesa($mesa->cod_mesa, "pagando");
+          $a = Pedido::ObtenerTodosPorMesa($mesa->cod_mesa, "entregado");
           $listaProd = array();
           var_dump($a);
           if(count($a) > 0){
