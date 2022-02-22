@@ -130,6 +130,7 @@ class Pedido
             if($this->estimado) { $est = $this->estimado->format('Y-m-d H:i:s');}
             else{$est = null;}
         }
+        else {$est = $this->estimado->format('Y-m-d H:i:s');}
         $consulta->bindValue(':estimado', $est);
         
         if($this->hora_entrega) { $ent = $this->hora_entrega->format('Y-m-d H:i:s'); }
