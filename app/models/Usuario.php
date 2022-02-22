@@ -64,8 +64,11 @@ class Usuario
 
     public static function validarRol(string $rol){
         $rol = strtolower($rol);
-        return ($rol == 'socio' || $rol == 'bartender'||
-            $rol == 'cervecero'|| $rol == 'cocinero' || $rol == 'mozo');
+        return ($rol == 'socio' || 
+                $rol == 'bartender'||
+                $rol == 'cervecero'|| 
+                $rol == 'cocinero' || 
+                $rol == 'mozo');
     }
 
 }

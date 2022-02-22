@@ -21,11 +21,11 @@ class AuthMW
 
     public static function LoginSocio($request, $handler){
         $header = $request->getHeaderLine("authorization");
-        $token = trim(explode('Bearer', $header)[1]);
-        
+
         $response = new Response();
         
         try{
+            $token = trim(explode('Bearer', $header)[1]);
             $payload = json_decode(AutentificadorJWT::ObtenerData($token));
             if($payload->rol != "socio"){ throw new Exception("No autorizado");}
             $response = $handler->handle($request);
@@ -39,11 +39,11 @@ class AuthMW
 
     public static function LoginSocioMozo($request, $handler){
         $header = $request->getHeaderLine("authorization");
-        $token = trim(explode('Bearer', $header)[1]);
         
         $response = new Response();
         
         try{
+            $token = trim(explode('Bearer', $header)[1]);
             $payload = json_decode(AutentificadorJWT::ObtenerData($token));
             if($payload->rol != "socio" && $payload->rol != 'mozo'){ throw new Exception("No autorizado");}
             $response = $handler->handle($request);
@@ -59,10 +59,11 @@ class AuthMW
     
     public static function Login($request, $handler){
         $header = $request->getHeaderLine("authorization");
-        $token = trim(explode('Bearer', $header)[1]);
+        
         $response = new Response();
         
         try{
+            $token = trim(explode('Bearer', $header)[1]);
             $payload = json_decode(AutentificadorJWT::ObtenerData($token));
             if(!Usuario::validarRol($payload->rol)){ throw new Exception("No autorizado");}
             $response = $handler->handle($request);

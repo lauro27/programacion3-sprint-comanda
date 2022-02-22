@@ -71,7 +71,27 @@ class Producto{
 
 
     public static function validarSector($sector){
-        return ($sector == "candy" || $sector == "vinos" || 
-            $sector == "cervezas" || $sector == "cocina");
+        return ($sector == "candy" || 
+                $sector == "vinos" || 
+                $sector == "cervezas" || 
+                $sector == "cocina");
+    }
+
+    public function SectorCorrecto(string $rol)
+    {
+        switch ($rol) {
+            case 'bartender':
+                if($this->sector == "vinos"){return true;}
+                break;
+            case 'cervecero':
+                if($this->sector == "cervezas"){return true;}
+                break;
+            case 'cocinero':
+                if($this->sector == "cocina" || $this->sector == "candy"){return true;}
+                break;
+            default:
+                return false;
+                break;
+        }
     }
 }

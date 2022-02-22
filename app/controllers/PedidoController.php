@@ -18,48 +18,41 @@ class PedidoController extends Pedido implements IApiUsable
         $parametros = $request->getParsedBody();
         $payload = json_decode(AutentificadorJWT::ObtenerData($elToken));
         $id = $payload->id;
-        
+
         $response = new Response();
         
-        if(isset($parametros['cliente']) && isset($parametros['mesa']))
+        if(isset($parametros['cliente']) && 
+                isset($parametros['mesa']) && 
+                isset($parametros["producto"]))
         {
             $cliente = $parametros['cliente'];
             $idMesa = $parametros['mesa'];
+            $prod = Producto::obtenerProducto($parametros['producto']);
         }
         else{
             return $response->withStatus(400, "Faltan datos en request");
         }
 
+        if(!isset($prod->nombre)){
+            return $response->withStatus(404, "No se encuentra el producto");
+        }
+
         $mesa = Mesa::obtenerMesa($idMesa);
+
+        if(!$mesa)
+        {
+            return $response->withStatus(400, "Mesa no valida");
+        }
         // Creamos el pedido
         $ped = new Pedido();
         $ped->id_usuario = $id;
         $ped->nombre_cliente = $cliente;
         $ped->cod_mesa = $idMesa;
+        $ped->id_producto = $prod->id;
         $ped->cod_pedido = CsvHandler::GenerarCodigo();
         
-        $files = $request->getUploadedFiles();
-        
-        if(!is_null($files['foto']))
-        {
-            if(!file_exists('Pedidos/')){
-                mkdir('Pedidos/',0777, true);
-            }
-            $foto = $files['foto'];
-            $media = $foto->getClientMediaType();
-            $ext = explode("/", $media)[1];
-            $type = explode("/", $media)[0];
-            if($type == "image")
-            {
-              $ruta = "./Pedidos/" . $ped->cod_pedido . "." . $ext;
-              $foto->moveTo($ruta);
-            }
-            else{$ruta = "";}
-        }
-        else{$ruta = "";}
-        $ped->dir_foto = $ruta;
         $ped->crearPedido();
-        //TODO: FOTO
+
         $payload = json_encode(array("mensaje" => "Pedido $ped->cod_pedido en mesa $ped->cod_mesa creado con exito"));
 
         $response->getBody()->write($payload);
@@ -71,7 +64,7 @@ class PedidoController extends Pedido implements IApiUsable
     public function TraerUno($request, $handler, $args)
     {
         $id = $args['codigo'];
-        $pedido = Pedido::obtenerPedido($id);
+        $pedido = Pedido::obtenerPorCodigo($id);
 
         $response = new Response();
         if(isset($pedido->id)){
@@ -93,15 +86,9 @@ class PedidoController extends Pedido implements IApiUsable
 
         $response = new Response();
         if(isset($pedido->id)){
-            $productos = array();
-            foreach ($pedido->id_productos as $key => $value) {
-                $prod = Producto::obtenerPorId($value);
-                if($prod){
-                    array_push($productos, $prod);
-                }
-            }
-            
-            $payload = json_encode($pedido) . "\nProductos: \n" . json_encode($productos);
+            $prod = Producto::obtenerPorId($pedido->id_producto);
+                        
+            $payload = json_encode($pedido) . "\nProducto: \n" . $prod->nombre;
 
             $response->getBody()->write($payload);
         }
@@ -122,16 +109,184 @@ class PedidoController extends Pedido implements IApiUsable
         return $response
           ->withHeader('Content-Type', 'application/json');
     }
-    
-    public function ModificarUno($request, $handler)
+
+    #region SETEO DE ESTADO
+
+    public function SetearPreparando($request, $handler)
     {
+        //decodear token
+        $header = $request->getHeaderLine("authorization");
+        $token = trim(explode('Bearer', $header)[1]);
+
+        $data = json_decode(AutentificadorJWT::ObtenerData($token));
+
+        //decodear request
+        $parametros = $request->getParsedBody();
+
+        $ped = Pedido::obtenerPorCodigo($parametros['codigo']);
+        $minEstimado = intval($parametros['minutos']);
+        
+
+        $response = new Response();
+
+        //revisando si el pedido existe y no tiene estimado aun
+        if($ped->nombre_cliente != NULL || $ped->estado != "recibido")
+        {
+            $response->withStatus(400, "pedido no valido");
+        }//revisando si el estimado en minutos existe y es mayor a 0
+        elseif($minEstimado != NULL || $minEstimado <= 0){
+            $response->withStatus(400, "estimado no valido");
+        }else{
+            $producto = Producto::obtenerPorId($ped->id_producto);
+            //revisando si el producto es del sector del empleado o si es socio
+            if($producto->SectorCorrecto($data->rol)){
+                //cuando todo esta bien, arrancamos
+                $ped->estado = "preparando";
+                $tiempoEstimado = new DateTime($ped->hora_inicio);
+                $tiempoEstimado->modify(" + " . $minEstimado . " minute");
+                $ped->hora_estimado = $tiempoEstimado;
+                $msg = $ped->cambiarEstado();
+                $payload = json_encode(array("mensaje" => "$msg"));
+                $response->getBody()->write($payload);
+            }
+            else{
+                $response->withStatus(403, "Forbidden: Rol invalido");
+            }
+        }
+
+        
+        return $response
+          ->withHeader('Content-Type', 'application/json');
+    }
+
+    public function SetearListo($request, $handler)
+    {
+        //decodear token
+        $header = $request->getHeaderLine("authorization");
+        $token = trim(explode('Bearer', $header)[1]);
+
+        $data = json_decode(AutentificadorJWT::ObtenerData($token));
+
+        //decodear request
         $parametros = $request->getParsedBody();
 
         $ped = Pedido::obtenerPorCodigo($parametros['codigo']);
 
         $response = new Response();
 
-        if($ped->nombre_cliente != NULL){
+        //revisando si el pedido existe y esta en preparacion
+        if($ped->estado != "preparando")
+        {
+            $response->withStatus(400, "pedido no valido");
+        }else{
+            $producto = Producto::obtenerPorId($ped->id_producto);
+            //revisando si el producto es del sector del empleado o si es socio
+            if($producto->SectorCorrecto($data->rol)){
+                //cuando todo esta bien, arrancamos
+                $ped->estado = "listo";
+                $tiempoFinal = new DateTime("now");
+                $ped->hora_entrega = $tiempoFinal;
+                $msg = $ped->cambiarEstado();
+                $payload = json_encode(array("mensaje" => "$msg"));
+                $response->getBody()->write($payload);
+            }
+            else{
+                $response->withStatus(403, "Forbidden: Rol invalido");
+            }
+        }
+
+        
+        return $response
+          ->withHeader('Content-Type', 'application/json');
+    }
+
+    public function SetearEntregado($request, $handler)
+    {
+        //decodear request
+        $parametros = $request->getParsedBody();
+
+        $ped = Pedido::obtenerPorCodigo($parametros['codigo']);
+
+        $response = new Response();
+
+        //revisando si el pedido existe y esta siendo preparado
+        if($ped->estado != "listo")
+        {
+            $response->withStatus(400, "pedido no valido");
+        }else{
+            //cuando todo esta bien, arrancamos
+            $ped->estado = "entregado";
+            $msg = $ped->cambiarEstado();
+            $payload = json_encode(array("mensaje" => "$msg"));
+            $response->getBody()->write($payload);
+        }
+        
+        return $response
+          ->withHeader('Content-Type', 'application/json');
+    }
+
+    public function SetearPagado($request, $handler)
+    {
+        //decodear request
+        $parametros = $request->getParsedBody();
+
+        $ped = Pedido::obtenerPorCodigo($parametros['codigo']);
+
+        $response = new Response();
+
+        //revisando si el pedido existe y esta siendo preparado
+        if($ped->estado != "entregado")
+        {
+            $response->withStatus(400, "pedido no valido");
+        }else{
+            //cuando todo esta bien, arrancamos
+            $ped->estado = "pagado";
+            $msg = $ped->cambiarEstado();
+            $payload = json_encode(array("mensaje" => "$msg"));
+            $response->getBody()->write($payload);
+        }
+        
+        return $response
+          ->withHeader('Content-Type', 'application/json');
+    }
+
+    public function SetearCancelado($request, $handler)
+    {
+        //decodear request
+        $parametros = $request->getParsedBody();
+
+        $ped = Pedido::obtenerPorCodigo($parametros['codigo']);
+
+        $response = new Response();
+
+        //revisando si el pedido existe y no fue entregado al cliente
+        if($ped->estado == "pagado" || $ped->estado == "cancelado" || $ped->estado == "entregado")
+        {
+            $response->withStatus(400, "pedido no valido");
+        }else{
+            //cuando todo esta bien, arrancamos
+            $ped->estado = "cancelado";
+            $msg = $ped->cambiarEstado();
+            $payload = json_encode(array("mensaje" => "$msg"));
+            $response->getBody()->write($payload);
+        }
+        
+        return $response
+          ->withHeader('Content-Type', 'application/json');
+    }
+    #endregion
+    
+    public function ModificarUno($request, $handler)
+    {
+        $parametros = $request->getParsedBody();
+
+        $estado = $parametros['estado'];
+        $ped = Pedido::obtenerPorCodigo($parametros['codigo']);
+
+        $response = new Response();
+
+        if($ped->nombre_cliente != NULL && Pedido::validarEstado($estado)){
+            $ped->estado = $estado;
             $msg = $ped->cambiarEstado();
             $payload = json_encode(array("mensaje" => "$msg"));
             $response->getBody()->write($payload);
@@ -160,76 +315,6 @@ class PedidoController extends Pedido implements IApiUsable
           ->withHeader('Content-Type', 'application/json');
     }
 
-    public function sumarProducto($request, $handler)
-    {
-        $parametros = $request->getParsedBody();
-        $producto = $parametros['producto'];
-        $id = $parametros['codigo'];
-
-        $ped = Pedido::obtenerPorCodigo($id);
-        $response = new Response();
-        if($ped)
-        {
-            $payload = $ped->agregarProducto($producto);
-            $response->getBody()->write($payload);
-        }
-        else{$response = $response->withStatus(400);}
-        return $response
-          ->withHeader('Content-Type', 'application/json');
-    }
-
-    public function setEstimado($request, $handler)
-    {
-        $header = $request->getHeaderLine("authorization");
-        $token = trim(explode('Bearer', $header)[1]);
-        
-        $data = json_decode(AutentificadorJWT::ObtenerData($token));
-
-        $parametros = $request->getParsedBody();
-        $estimado = intval($parametros['estimado']);
-        $ped = Pedido::obtenerPorCodigo($parametros['codigo']);
-        $sector = $parametros['sector'];
-        $prod = $ped->obtenerProductosPorSector($sector);
-        $response = new Response();
-        try{
-            if($ped->nombre_cliente == NULL){throw new Exception("No se encuentra pedido");}
-            if($ped->estimado > $estimado){throw new Exception("Estimado menor al actual");}
-            if(count($prod) == 0){throw new Exception("El pedido no tiene productos");}
-            $ped->estimado = $estimado;
-            $ped->actualizarEstimado();
-            return $response->withStatus(200);
-        }
-        catch(Exception $e){
-            echo $e->getMessage();
-            return $response->withStatus(400, $e);
-        }
-        finally{
-            return $response;
-        }
-    }
-
-    public function TraerProductosPedidoPorSector($request, $handler, $args)
-    {
-        $response = new Response();
-        $sector = $args['sector'];
-        if(!Producto::validarSector($sector)){
-            return $response->withStatus(400, "sector invalido");
-        }
-        $pedido = $args['cod_pedido'];
-
-        $ped = Pedido::obtenerPorCodigo($pedido);
-        if($pedido)
-        {
-            $productos = $ped->obtenerProductosPorSector($sector);
-            $response->getBody()->write(json_encode($productos));
-
-        }
-        else{
-            return $response->withStatus(404, "no se encuentra pedido");
-        }
-        return $response->withHeader('Content-Type', 'application/json');;
-
-    }
     public function MostrarUno($request, $handler, $args)
     {
         $id = $args['codigo'];
@@ -257,39 +342,6 @@ class PedidoController extends Pedido implements IApiUsable
           ->withHeader('Content-Type', 'application/json');
     }
 
-    public function TraerCuenta($request, $handler)
-    {
-        
-        $parametros = $request->getParsedBody();
-        $id = $parametros['codigo'];
-        $pedido = Pedido::obtenerPorCodigo($id);
-
-        $response = new Response();
-        if(isset($pedido->id)){
-            $total = 0;
-            $a = $pedido->ObtenerProductos();
-            $listaProd = array();
-            foreach ($a as $key => $value) {
-                $total += $value->precio;
-                array_push($listaProd, $value->nombre);
-            }
-            $payload = "Productos: " . json_encode($listaProd);
-            $payload .= " - Total: " . $total;
-            $response->getBody()->write($payload);
-
-            //mesa pagando
-            $mesa = Mesa::obtenerMesa($pedido->cod_mesa);
-            $mesa->estado = 'pagando';
-            $mesa->modificarMesa();
-        }
-        else{
-            $response->withStatus(404, "No se encuentra pedido");
-        }
-        
-        return $response
-          ->withHeader('Content-Type', 'application/json');        
-    }
-
     public static function TraerPdf($request, $handler)
     {
         $lista = Pedido::obtenerTodos();
@@ -306,7 +358,7 @@ class PedidoController extends Pedido implements IApiUsable
             $pdf->Cell(15, 6, $value->cod_mesa, 1);
             $pdf->Cell(15, 6, $value->cod_pedido, 1);
             $pdf->Cell(60, 6, $value->dir_foto, 1);
-            $pdf->Cell(20, 6, json_encode($value->id_productos), 1);
+            $pdf->Cell(20, 6, $value->id_productos, 1);
             $pdf->Cell(40, 6, $value->hora_inicio, 1);
             $pdf->Cell(40, 6, $value->hora_entrega, 1);
             $pdf->Ln();
@@ -337,6 +389,23 @@ class PedidoController extends Pedido implements IApiUsable
 
         $response = new Response();
         $response->getBody()->write($payload);
+        return $response
+          ->withHeader('Content-Type', 'application/json');
+    }
+
+    public function TraerTodosSector($request, $handler)
+    {
+        //decodear token
+        $header = $request->getHeaderLine("authorization");
+        $token = trim(explode('Bearer', $header)[1]);
+
+        $data = json_decode(AutentificadorJWT::ObtenerData($token));
+
+        $array = Pedido::ObtenerPorRol($data->rol);
+        $payload = json_encode(array("listaPedido" => $array));
+
+        $response = new Response();
+        $response->getBody()->write(json_encode($payload));
         return $response
           ->withHeader('Content-Type', 'application/json');
     }

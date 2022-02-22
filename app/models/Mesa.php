@@ -5,12 +5,14 @@ class Mesa
     public $id;
     public $cod_mesa;
     public $estado = 'cerrada';
+    public $dir_foto = NULL;
 
     public function crearMesa()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDatos->prepararConsulta("INSERT INTO mesas (cod_mesa) VALUES (:cod_mesa)");
+        $consulta = $objAccesoDatos->prepararConsulta("INSERT INTO mesas (cod_mesa, dir_foto) VALUES (:cod_mesa, :dir_foto)");
         $consulta->bindValue(':cod_mesa', $this->cod_mesa, PDO::PARAM_STR);
+        $consulta->bindValue(':dir_foto', $this->dir_foto, PDO::PARAM_STR);
         $consulta->execute();
 
         return $objAccesoDatos->obtenerUltimoId();
@@ -19,7 +21,7 @@ class Mesa
     public static function obtenerTodos()
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDatos->prepararConsulta("SELECT id, cod_mesa, estado FROM mesas");
+        $consulta = $objAccesoDatos->prepararConsulta("SELECT * FROM mesas");
         $consulta->execute();
 
         return $consulta->fetchAll(PDO::FETCH_CLASS, 'Mesa');
@@ -28,7 +30,7 @@ class Mesa
     public static function obtenerMesa($mesa)
     {
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
-        $consulta = $objAccesoDatos->prepararConsulta("SELECT id, cod_mesa, estado FROM mesas WHERE cod_mesa = :cod_mesa");
+        $consulta = $objAccesoDatos->prepararConsulta("SELECT * FROM mesas WHERE cod_mesa = :cod_mesa");
         $consulta->bindValue(':cod_mesa', $mesa, PDO::PARAM_STR);
         $consulta->execute();
 
@@ -53,8 +55,10 @@ class Mesa
     }
 
     public static function validarEstado(string $rol){
-        return ($rol == 'esperando' || $rol == 'comiendo'||
-            $rol == 'pagando'|| $rol == 'cerrada');
+        return ($rol == 'esperando' || 
+                $rol == 'comiendo'||
+                $rol == 'pagando'|| 
+                $rol == 'cerrada');
     }
 
 }

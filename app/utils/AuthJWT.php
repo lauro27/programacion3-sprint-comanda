@@ -12,7 +12,7 @@ class AutentificadorJWT
         $ahora = time();
         $payload = array(
             'iat' => $ahora,
-            'exp' => $ahora + (60000),
+            'exp' => $ahora + (86400),
             'aud' => self::Aud(),
             'data' => $datos,
             'app' => "La comanda - Lamas"

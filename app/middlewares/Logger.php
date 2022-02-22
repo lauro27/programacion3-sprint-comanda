@@ -15,10 +15,16 @@ class Logger
     public function __invoke($request, $handler)
     {
         $header = $request->getHeaderLine("authorization");
-        $token = trim(explode('Bearer', $header)[1]);
-        $payload = json_decode(AutentificadorJWT::ObtenerData($token));
-        $id = $payload->id;
-
+        var_dump($header);
+        if($header == "")
+        {
+            $id = -1;
+        }
+        else{
+            $token = trim(explode('Bearer', $header)[1]);
+            $payload = json_decode(AutentificadorJWT::ObtenerData($token));
+            $id = $payload->id;1;
+        }
         $response = $handler->handle($request);
         
         $status = $response->getStatusCode();
