@@ -262,6 +262,8 @@ class Pedido
         $consulta = $objAccesoDatos->prepararConsulta(
             "SELECT * FROM pedidos 
                 WHERE (estado = :recibido or estado = :preparando)");
+                $consulta->bindValue(":recibido", $sRecibido);
+                $consulta->bindValue(":preparando", $sPrep);
         $consulta->execute();
         $todos = $consulta->fetchAll(PDO::FETCH_CLASS, 'Pedido');
         $resultado = array();

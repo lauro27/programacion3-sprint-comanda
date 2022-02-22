@@ -130,7 +130,7 @@ class PedidoController extends Pedido implements IApiUsable
         $response = new Response();
 
         //revisando si el pedido existe y no tiene estimado aun
-        if($ped->nombre_cliente != NULL || $ped->estado != "recibido")
+        if($ped->nombre_cliente == NULL || $ped->estado != "recibido")
         {
             $response->withStatus(400, "pedido no valido");
         }//revisando si el estimado en minutos existe y es mayor a 0
@@ -357,7 +357,7 @@ class PedidoController extends Pedido implements IApiUsable
             $pdf->Cell(30, 6, $value->nombre_cliente, 1);
             $pdf->Cell(15, 6, $value->cod_mesa, 1);
             $pdf->Cell(15, 6, $value->cod_pedido, 1);
-            $pdf->Cell(20, 6, $value->id_productos, 1);
+            $pdf->Cell(20, 6, $value->id_producto, 1);
             $pdf->Cell(40, 6, $value->hora_inicio, 1);
             $pdf->Cell(40, 6, $value->hora_entrega, 1);
             $pdf->Ln();
