@@ -132,12 +132,17 @@ class PedidoController extends Pedido implements IApiUsable
         //revisando si el pedido existe y no tiene estimado aun
         if($ped->id_producto == NULL || $ped->estado != "recibido")
         {
+            
             $response->withStatus(400, "pedido no valido");
+            var_dump($response);
         }//revisando si el estimado en minutos existe y es mayor a 0
         elseif($minEstimado != NULL || $minEstimado <= 0){
             $response->withStatus(400, "estimado no valido");
+            var_dump($response);
         }else{
+            
             $producto = Producto::obtenerPorId($ped->id_producto);
+            var_dump($producto);
             //revisando si el producto es del sector del empleado o si es socio
             if($producto->SectorCorrecto($data->rol)){
                 //cuando todo esta bien, arrancamos
@@ -152,6 +157,7 @@ class PedidoController extends Pedido implements IApiUsable
             else{
                 $response->withStatus(403, "Forbidden: Rol invalido");
             }
+            var_dump($response);
         }
 
         
