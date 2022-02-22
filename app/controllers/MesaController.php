@@ -160,13 +160,11 @@ class MesaController extends Mesa implements IApiUsable
       $parametros = $request->getParsedBody();
       $id = $parametros['codigo'];
       $mesa = Mesa::obtenerMesa($id);
-      var_dump($mesa);
       $response = new Response();
       if(isset($mesa->id)){
           $total = 0;
           $a = Pedido::ObtenerTodosPorMesa($mesa->cod_mesa, "entregado");
           $listaProd = array();
-          var_dump($a);
           if(count($a) > 0){
               foreach ($a as $key => $value) {
                 $value->estado = 'pagado';

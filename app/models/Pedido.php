@@ -226,9 +226,8 @@ class Pedido
         $consulta->execute();
 
         $respuesta = $consulta->fetchAll(PDO::FETCH_CLASS, 'Pedido');
-        $array = array();
 
-        return json_encode($array);
+        return json_encode($respuesta);
     }
 
     public static function obtenerTodosEnTiempo()
@@ -249,9 +248,8 @@ class Pedido
         $consulta->execute();
 
         $respuesta = $consulta->fetchAll(PDO::FETCH_CLASS, 'Pedido');
-        $array = array();
 
-        return json_encode($array);
+        return json_encode($respuesta);
     }
 
     public static function ObtenerTodosPorMesa(string $codigo, string $estado)
