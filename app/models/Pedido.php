@@ -259,7 +259,7 @@ class Pedido
         $objAccesoDatos = AccesoDatos::obtenerInstancia();
         $consulta = $objAccesoDatos->prepararConsulta("SELECT * FROM pedidos 
                 WHERE cod_mesa = :cod_mesa and estado = :estado");
-        $consulta->bindValue(":codigo", $codigo);
+        $consulta->bindValue(":cod_mesa", $codigo);
         $consulta->bindValue(":estado", $estado);
 
         $consulta->execute();
