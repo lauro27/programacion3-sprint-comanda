@@ -407,7 +407,7 @@ class PedidoController extends Pedido implements IApiUsable
         $payload = json_encode(array("listaPedido" => $array));
 
         $response = new Response();
-        $response->getBody()->write(json_encode($payload));
+        $response->getBody()->write($payload);
         return $response
           ->withHeader('Content-Type', 'application/json');
     }

@@ -153,8 +153,7 @@ $app->group('/pedidos', function (RouteCollectorProxy $group){
 });
 
 $app->group("/encuesta",function (RouteCollectorProxy $group){
-  $group->get
-  ("/{cod_mesa}/{pedido}/{restaurante}/{cocinero}/{mozo}/{mesa}", \EncuestaController::class . ":CargarUno");
+  $group->post("[/]", \EncuestaController::class . ":CargarUno");
   $group->get("/todos[/]", \EncuestaController::class . ':TraerTodos')
     ->add(\AuthMW::class . ':LoginSocio')
     ->add(new Logger("Buscando reviews"));
