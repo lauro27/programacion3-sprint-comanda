@@ -126,11 +126,16 @@ class Pedido
                 WHERE id = :id");
         $consulta->bindValue(':id_producto', $this->id_producto, PDO::PARAM_STR);
         $consulta->bindValue(':estado', $this->estado);
-        $entrega = date('Y-m-d H:i:s', strtotime($this->estimado));
-        $consulta->bindValue(':estimado', $this->estimado);
-        $entrega = date('Y-m-d H:i:s', strtotime($this->hora_entrega));
-        var_dump($entrega);
-        $consulta->bindValue(':hora_entrega', $entrega);
+
+        if($this->hora_entrega) { $est = $this->estimado->format('Y-m-d H:i:s');}
+        else{$ent = null;}
+        $consulta->bindValue(':estimado', $est);
+        
+        if($this->hora_entrega) { $ent = $this->hora_entrega->format('Y-m-d H:i:s'); }
+        else{$ent = null;}
+        var_dump($ent);
+        var_dump($est);
+        $consulta->bindValue(':hora_entrega', $ent);
         $consulta->bindValue(':id', $this->id, PDO::PARAM_INT);
         $consulta->execute();
     }
