@@ -122,8 +122,7 @@ class Pedido
             SET id_producto = :id_producto, 
                 estado = :estado, 
                 estimado = :estimado, 
-                hora_entrega = :hora_entrega,
-                hora_final = :hora_final 
+                hora_entrega = :hora_entrega
                 WHERE id = :id");
         $consulta->bindValue(':id_producto', $this->id_producto, PDO::PARAM_STR);
         $consulta->bindValue(':estado', $this->estado);
