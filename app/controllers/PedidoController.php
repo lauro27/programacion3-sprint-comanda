@@ -146,9 +146,7 @@ class PedidoController extends Pedido implements IApiUsable
                 $ped->estado = "preparando";
                 $tiempoEstimado = new DateTime($ped->hora_inicio);
                 $tiempoEstimado->modify(" + " . $minEstimado . " minute");
-                var_dump($tiempoEstimado);
                 $ped->estimado = $tiempoEstimado;
-                var_dump($ped);
                 $msg = $ped->modificarPedido();
                 $payload = json_encode(array("mensaje" => "Pedido". $ped->cod_pedido . " seteado a preparando."));
                 $response->getBody()->write($payload);
