@@ -49,13 +49,15 @@ $app->post('/login[/]', \LoginController::class . ':IniciarSesion')
 
 $app->group('/usuarios', function (RouteCollectorProxy $group) {
     $group->get('[/]', \UsuarioController::class . ':TraerTodos')
-      ->add(new Logger("busca usuario"));
-    $group->get('/{usuario}', \UsuarioController::class . ':TraerUno')
       ->add(new Logger("busca todos los usuarios"));
+    $group->get('/{usuario}', \UsuarioController::class . ':TraerUno')
+      ->add(new Logger("busca usuario"));
     $group->post('[/]', \UsuarioController::class . ':CargarUno')
       ->add(new Logger("creando usuario"));
     $group->post('/csv', \UsuarioController::class . ':CargarPorCsv')
       ->add(new Logger("creando usuarios por csv"));
+    $group->delete("[/]", \UsuarioController::class . 'BorrarUno')
+    ->add(new Logger("borra usuario"));
 })->add(\AuthMW::class . ':LoginSocio');
 
 $app->group('/productos', function (RouteCollectorProxy $group){
@@ -74,14 +76,14 @@ $app->group('/mesas', function (RouteCollectorProxy $group){
   $group->post('[/]', \MesaController::class . ':CargarUno')
     ->add(\AuthMW::class . ':LoginSocio')  
     ->add(new Logger("Agrega mesa"));
-  $group->post('/estado', \MesaController::class . ":ModificarUno")
+  $group->put('[/]', \MesaController::class . ":ModificarUno")
     ->add(new Logger("modificado estado de mesa"));
-  $group->post('/borrar[/]', \MesaController::class . ":BorrarUno")
+  $group->delete('[/]', \MesaController::class . ":BorrarUno")
     ->add(\AuthMW::class . ':LoginSocio')
     ->add(new Logger("Borra mesa"));
-  $group->post('/cuenta[/]', \MesaController::class . ":TraerCuenta")
+  $group->put('/cuenta[/]', \MesaController::class . ":TraerCuenta")
     ->add(new Logger("Traer cuenta de mesa"));
-  $group->post('/cerrar[/]', \MesaController::class . ":PagarMesa")
+  $group->put('/cerrar[/]', \MesaController::class . ":PagarMesa")
     ->add(\AuthMW::class . ':LoginSocio')
     ->add(new Logger("Cierra mesa"));
   $group->get('/mejor[/]', \MesaController::class . ":MejorMesa")

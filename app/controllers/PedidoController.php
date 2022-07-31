@@ -365,11 +365,15 @@ class PedidoController extends Pedido implements IApiUsable
             $pdf->Cell(40, 6, $value->hora_entrega, 1);
             $pdf->Ln();
         }
-        $pdf->Output();
+        $content = $pdf->Output('S');
 
 
         $response = new Response();
+        $body = $response->getBody();
+        $body->write($content);
         return $response
+            ->withBody($body)
+            ->withHeader('Content-Type', 'application/pdf')
             ->withStatus(200);
     }
 
